@@ -1,11 +1,17 @@
 {
   "schemaVersion": 1,
   "id": "delg.material-file-icons",
-  "publisherId": "delg",
+  "publisherId": "6a5302600325fb03204c8760",
+  "publisher": {
+    "displayName": "delg",
+    "description": "Official DELG Plugins"
+  },
   "name": "Material File Icons",
   "version": "1.1.0",
   "description": "Material Design SVG file icons for the explorer. Adds semantic icons and colors for 120+ file extensions plus workspace utility commands.",
   "entry": "dist/plugin.js",
+  "icon": "media/icon.png",
+  "images": ["media/overview.png"],
   "engines": {
     "delgIde": ">=0.1.0",
     "pluginApi": "1"
