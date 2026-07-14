@@ -66,5 +66,9 @@
         "scope": "global"
       }
     ]
+  },
+  "source": {
+    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
+    "commit": "fafe7b783dd40512975e5e99501c998bf946bc8a"
   }
 }
