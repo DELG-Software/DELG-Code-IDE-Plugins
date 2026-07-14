@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "id": "delg.web-forge",
+  "publisherId": "6a5302600325fb03204c8760",
+  "publisher": {
+    "displayName": "delg",
+    "description": "Official DELG Plugins"
+  },
+  "name": "DELG Web Forge",
+  "description": "Productivity snippets and structural abbreviations for HTML, CSS, JavaScript, TypeScript, React, and Vue.",
+  "version": "0.3.0",
+  "entry": "plugin.js",
+  "engines": {
+    "delgIde": ">=0.3.0"
+  },
+  "capabilities": [
+    "full-host",
+    "commands",
+    "editor-completions",
+    "status",
+    "sidebar-views",
+    "menus",
+    "keybindings",
+    "configuration"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "delg.web-forge.about",
+        "title": "Web Forge: Show Snippet Guide"
+      }
+    ],
+    "views": [
+      {
+        "id": "delg.web-forge.snippet-guide",
+        "title": "Web Forge",
+        "location": "sidebar"
+      }
+    ],
+    "menus": [
+      {
+        "command": "delg.web-forge.about",
+        "location": "commandPalette",
+        "group": "web-forge"
+      },
+      {
+        "command": "delg.web-forge.about",
+        "location": "editor/context",
+        "group": "web-forge",
+        "when": "editorFocus"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "delg.web-forge.about",
+        "key": "ctrl+alt+w",
+        "mac": "cmd+alt+w"
+      }
+    ],
+    "configuration": [
+      {
+        "key": "delg.web-forge.completions.enabled",
+        "type": "boolean",
+        "default": true,
+        "description": "Enable Web Forge completion suggestions.",
+        "scope": "global"
+      }
+    ]
+  }
+}
