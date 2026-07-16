@@ -110,15 +110,7 @@ paths. This repository currently has no top-level license file defining the
 terms for the plugin source or custom artwork; add or confirm those terms before
 publishing.
 
-## 1.2.0 release-candidate status
+## 1.2.0 source provenance
 
-Version 1.2.0 is a local release candidate with uncommitted redesign changes.
-For that reason, `manifest.json` intentionally has no `source` block yet: using
-the current `HEAD`, a branch name, or a placeholder such as `local` would claim
-false provenance.
-
-Publish only after committing the exact source used to build the final archive.
-After that commit, add `source.repository` with the canonical repository URL and
-`source.commit` with that exact commit SHA, rebuild the archive, rerun the checks
-above, and provide the same repository and commit on the publish page. Do not
-reuse a hash or provenance value from an earlier build.
+The packaged manifest links to the canonical repository and the exact source
+commit used for this release. Use those same values on the publish page.

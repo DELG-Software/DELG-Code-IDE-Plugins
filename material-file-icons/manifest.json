@@ -54,5 +54,9 @@
         "tooltip": "Registered Material explorer icons"
       }
     ]
+  },
+  "source": {
+    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
+    "commit": "42e214c6cb7100e078b24f99766fe9e697cdda3d"
   }
 }
