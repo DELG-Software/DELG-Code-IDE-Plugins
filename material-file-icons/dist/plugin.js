@@ -30,6 +30,7 @@ const MATERIAL_PATHS = Object.freeze({
 })
 
 const ICONS = []
+
 function addIcon(icon, color, extensions) {
   for (const extension of extensions) ICONS.push([extension, icon, color])
 }
@@ -100,200 +101,53 @@ addIcon('image', '#FF9800', ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '
 addIcon('fontDownload', '#795548', ['.woff', '.woff2', '.ttf', '.otf', '.eot'])
 addIcon('audioFile', '#FF5722', ['.mp3', '.wav', '.ogg', '.flac'])
 addIcon('videoFile', '#FF5722', ['.mp4', '.webm', '.mov'])
+
 addIcon('archive', '#8D6E63', ['.zip', '.tar', '.gz', '.tgz', '.bz2', '.xz', '.7z'])
 addIcon('build', '#2496ED', ['.dockerfile'])
 addIcon('cloud', '#7B42BC', ['.tf', '.tfvars'])
 
-const LANG_LABEL = {
-  ts: 'TypeScript', tsx: 'TypeScript JSX', js: 'JavaScript', jsx: 'JavaScript JSX',
-  mjs: 'JavaScript', cjs: 'JavaScript', vue: 'Vue', svelte: 'Svelte', astro: 'Astro',
-  py: 'Python', rb: 'Ruby', php: 'PHP', java: 'Java', kt: 'Kotlin', swift: 'Swift',
-  cs: 'C#', fs: 'F#', cpp: 'C++', cc: 'C++', cxx: 'C++', c: 'C', h: 'C Header',
-  hpp: 'C++ Header', m: 'Objective-C', mm: 'Objective-C++', r: 'R', lua: 'Lua',
-  dart: 'Dart', scala: 'Scala', ex: 'Elixir', exs: 'Elixir', clj: 'Clojure',
-  cljs: 'ClojureScript', hs: 'Haskell', elm: 'Elm', go: 'Go', rs: 'Rust', zig: 'Zig',
-  nim: 'Nim', v: 'V', jl: 'Julia',
-  css: 'CSS', scss: 'SCSS', sass: 'Sass', less: 'Less', styl: 'Stylus',
-  html: 'HTML', htm: 'HTML', svg: 'SVG',
-  json: 'JSON', jsonc: 'JSONC', json5: 'JSON5', yaml: 'YAML', yml: 'YAML',
-  toml: 'TOML', ini: 'INI', cfg: 'Config', conf: 'Config',
-  sh: 'Shell', bash: 'Bash', zsh: 'Zsh', fish: 'Fish', ps1: 'PowerShell',
-  bat: 'Batch', cmd: 'Batch',
-  md: 'Markdown', mdx: 'MDX', rst: 'reStructuredText', txt: 'Text', tex: 'LaTeX',
-  pdf: 'PDF', log: 'Log',
-  sql: 'SQL', graphql: 'GraphQL', gql: 'GraphQL', prisma: 'Prisma',
-  csv: 'CSV', tsv: 'TSV', xml: 'XML',
-  png: 'PNG', jpg: 'JPEG', jpeg: 'JPEG', gif: 'GIF', webp: 'WebP',
-  ico: 'ICO', bmp: 'BMP', avif: 'AVIF',
-  woff: 'WOFF', woff2: 'WOFF2', ttf: 'TTF', otf: 'OTF', eot: 'EOT',
-  mp3: 'MP3', wav: 'WAV', ogg: 'OGG', flac: 'FLAC',
-  mp4: 'MP4', webm: 'WebM', mov: 'MOV',
-  tf: 'Terraform', tfvars: 'Terraform'
-}
-
-function extOf(path) {
-  const name = (path.split(/[/\\]/).pop() || '').toLowerCase()
-  if (name.startsWith('.')) {
-    const parts = name.slice(1).split('.')
-    if (parts.length > 1) return '.' + parts[parts.length - 1]
-    return name
-  }
-  const idx = name.lastIndexOf('.')
-  return idx > 0 ? name.slice(idx) : ''
-}
-
-const LEGACY_GLYPHS = {
-  description: 'Tx', code: '<>', dataObject: '{}', dataArray: '[]',
-  image: 'Im', audioFile: 'Au', videoFile: 'Vi', fontDownload: 'Fn', terminal: '>_',
-  settings: 'Cf', tableChart: 'Tb', article: 'Md', science: 'Sc', cloud: 'Cl',
-  lock: 'Lk', schema: 'Db', bugReport: 'Bg', build: 'Bd', archive: 'Ar',
-  javascript: 'JS', html: 'Ht', css: 'CS'
-}
-
-function legacyGlyph(materialIcon) {
-  return LEGACY_GLYPHS[materialIcon] || 'F'
-}
-
-function isLegacyIconApiError(error) {
-  const message = String(error).toLowerCase()
-  return message.includes('glyph') && (message.includes('iterable') || message.includes('trim'))
-}
-
 export default function activate(delg) {
   let iconCount = 0
-  let svgApiSupported = true
 
   for (const [extension, materialIcon, color] of ICONS) {
     try {
-      if (svgApiSupported) {
-        delg.ui.registerExplorerIcon(extension, {
-          path: MATERIAL_PATHS[materialIcon],
-          color
-        })
-      } else {
-        delg.ui.registerExplorerIcon(extension, legacyGlyph(materialIcon), color)
-      }
+      delg.ui.registerExplorerIcon(extension, {
+        path: MATERIAL_PATHS[materialIcon],
+        color
+      })
       iconCount++
     } catch (error) {
-      if (svgApiSupported && isLegacyIconApiError(error)) {
-        // During renderer HMR, a plugin can briefly see the old glyph-only
-        // API. Switch once and avoid emitting the same error for every file.
-        svgApiSupported = false
-        try {
-          delg.ui.registerExplorerIcon(extension, legacyGlyph(materialIcon), color)
-          iconCount++
-        } catch (fallbackError) {
-          console.warn('[material-file-icons] skipped ' + extension, fallbackError)
-        }
-      } else {
-        console.warn('[material-file-icons] skipped ' + extension, error)
-      }
+      console.warn('[material-file-icons] skipped ' + extension, error)
     }
   }
 
-  const STATUS_ID = 'material-icons.fileType'
   try {
-    delg.ui.registerStatusBarItem(STATUS_ID, 'No file', 'Current file type (Material File Icons)')
-  } catch {
-    // Status bar items may be unavailable at certain certification levels.
+    const result = delg.ui.registerStatusBarItem(
+      'delg.material-file-icons.status',
+      iconCount + ' Material icons',
+      'Material File Icons registered ' + iconCount + ' Explorer SVG icons'
+    )
+    if (result && typeof result.catch === 'function') {
+      void result.catch((error) => console.warn('[material-file-icons] could not register status item', error))
+    }
+  } catch (error) {
+    console.warn('[material-file-icons] could not register status item', error)
   }
 
-  function updateStatus() {
-    const activeTab = document.querySelector('.tab-strip .tab.active .name')
-    const tabText = activeTab?.textContent?.trim() || ''
-    if (!tabText) {
-      try { delg.ui.updateStatusBarItem(STATUS_ID, 'No file') } catch { /* ignore */ }
-      return
-    }
-    const ext = extOf(tabText).replace(/^\./, '')
-    const label = LANG_LABEL[ext] || (ext ? ext.toUpperCase() : 'Plain Text')
-    try { delg.ui.updateStatusBarItem(STATUS_ID, label) } catch { /* ignore */ }
-  }
-
-  const observer = new MutationObserver(updateStatus)
-  observer.observe(document.body, { childList: true, subtree: true, characterData: true })
-  const offAgent = delg.onAgentEvent(() => setTimeout(updateStatus, 300))
-  updateStatus()
-
-  delg.registerCommand(
-    'material-icons.copyPath',
-    'Copy Active File Path',
-    () => {
-      const path = window.__delgIde?.activeTabPath
-      if (!path) {
-        delg.ui.showMessage('No active file to copy')
-        return
-      }
-      const full = delg.workspace.root ? delg.workspace.root + '/' + path : path
-      navigator.clipboard.writeText(full).then(
-        () => delg.ui.showMessage('Copied: ' + full),
-        () => delg.ui.showMessage('Clipboard write failed')
-      )
-    }
+  const disposeSummary = delg.registerCommand(
+    'delg.material-file-icons.showSummary',
+    'Material File Icons: Show Summary',
+    () => delg.ui.showMessage(
+      'Material File Icons registered ' + iconCount + ' Explorer SVG icons.'
+    )
   )
 
-  delg.registerCommand(
-    'material-icons.copyRelativePath',
-    'Copy Active Relative Path',
-    () => {
-      const path = window.__delgIde?.activeTabPath
-      if (!path) {
-        delg.ui.showMessage('No active file to copy')
-        return
-      }
-      navigator.clipboard.writeText(path).then(
-        () => delg.ui.showMessage('Copied: ' + path),
-        () => delg.ui.showMessage('Clipboard write failed')
-      )
-    }
-  )
+  delg.ui.setStatus('Material File Icons: ' + iconCount + ' SVG icons registered')
 
-  delg.registerCommand(
-    'material-icons.duplicateFile',
-    'Duplicate Active File',
-    async () => {
-      const path = window.__delgIde?.activeTabPath
-      if (!path) {
-        delg.ui.showMessage('No active file to duplicate')
-        return
-      }
-      const dot = path.lastIndexOf('.')
-      const base = dot > 0 ? path.slice(0, dot) : path
-      const ext = dot > 0 ? path.slice(dot) : ''
-      const newName = window.prompt('Duplicate as', base + ' (copy)' + ext)
-      if (!newName || newName === path) return
-      try {
-        const content = await delg.workspace.readFile(path)
-        await delg.workspace.writeFile(newName, content)
-        delg.ui.openFile(newName)
-        delg.ui.showMessage('Duplicated → ' + newName)
-      } catch (error) {
-        delg.ui.showMessage('Duplicate failed: ' + String(error))
-      }
-    }
-  )
-
-  delg.registerCommand(
-    'material-icons.showIcons',
-    'Show Registered Material Icons',
-    () => {
-      const lines = ICONS.map(([extension, materialIcon, color]) =>
-        '  ' + materialIcon.padEnd(14) + extension.padEnd(14) + color
-      )
-      delg.ui.showMessage(
-        'Material File Icons: ' + iconCount + ' Material SVG icons registered\n' +
-        lines.join('\n')
-      )
-    }
-  )
-
-  delg.ui.showMessage(
-    'Material File Icons loaded — ' + iconCount +
-    (svgApiSupported ? ' Material SVG icons' : ' legacy icons (restart IDE for SVG icons)')
-  )
-
+  let disposed = false
   return () => {
-    observer.disconnect()
-    offAgent?.()
+    if (disposed) return
+    disposed = true
+    disposeSummary?.()
   }
 }

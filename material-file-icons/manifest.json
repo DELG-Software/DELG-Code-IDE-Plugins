@@ -7,51 +7,52 @@
     "description": "Official DELG Plugins"
   },
   "name": "Material File Icons",
-  "version": "1.1.0",
-  "description": "Material Design SVG file icons for the explorer. Adds semantic icons and colors for 120+ file extensions plus workspace utility commands.",
+  "version": "1.2.0",
+  "description": "Material Design SVG file icons for the explorer, covering more than 120 file extensions.",
   "entry": "dist/plugin.js",
   "icon": "media/icon.png",
   "images": ["media/overview.png"],
   "engines": {
-    "delgIde": ">=0.1.0",
-    "pluginApi": "1"
+    "delgIde": ">=0.3.0"
   },
   "capabilities": [
     "commands",
     "explorer-icons",
-    "status-bar",
-    "workspace-read"
+    "status",
+    "status-bar"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "material-icons.copyPath",
-        "title": "Copy Active File Path"
-      },
-      {
-        "command": "material-icons.copyRelativePath",
-        "title": "Copy Active Relative Path"
-      },
-      {
-        "command": "material-icons.duplicateFile",
-        "title": "Duplicate Active File"
-      },
-      {
-        "command": "material-icons.showIcons",
-        "title": "Show Registered File Icons"
+        "command": "delg.material-file-icons.showSummary",
+        "title": "Material File Icons: Show Summary"
       }
     ],
-    "explorerIcons": [],
+    "menus": [
+      {
+        "command": "delg.material-file-icons.showSummary",
+        "location": "commandPalette",
+        "group": "appearance"
+      },
+      {
+        "command": "delg.material-file-icons.showSummary",
+        "location": "editor/context",
+        "group": "appearance"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "delg.material-file-icons.showSummary",
+        "key": "ctrl+alt+i",
+        "mac": "cmd+alt+i"
+      }
+    ],
     "statusBarItems": [
       {
-        "id": "material-icons.fileType",
-        "text": "",
-        "tooltip": "Current file type (from Material File Icons plugin)"
+        "id": "delg.material-file-icons.status",
+        "text": "Material Icons",
+        "tooltip": "Registered Material explorer icons"
       }
     ]
-  },
-  "source": {
-    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
-    "commit": "local"
   }
 }
