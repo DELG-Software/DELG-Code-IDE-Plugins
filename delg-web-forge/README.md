@@ -75,5 +75,5 @@ manifest. Full Host releases require an explicit trust action before activation.
 Developer-mode folder links run as Full Host development plugins and do not use
 the signed marketplace certificate flow.
 
-The working manifest intentionally omits `source.commit` until the upgraded
-source is committed. Add the exact release commit before marketplace upload.
+The packaged manifest anchors its source provenance to commit
+`21d2663c14f96a861675540e6cffb714ab3d9c33` in this repository.
