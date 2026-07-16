@@ -1,0 +1,13 @@
+{
+  "name": "@delg-plugins/delg-web-forge",
+  "version": "0.4.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test plugin.test.mjs",
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "fflate": "0.8.2"
+  }
+}

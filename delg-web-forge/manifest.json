@@ -8,20 +8,16 @@
   },
   "name": "DELG Web Forge",
   "description": "Productivity snippets and structural abbreviations for HTML, CSS, JavaScript, TypeScript, React, and Vue.",
-  "version": "0.3.0",
+  "version": "0.4.1",
   "entry": "plugin.js",
   "engines": {
-    "delgIde": ">=0.3.0"
+    "delgIde": ">=0.4.5"
   },
   "capabilities": [
     "full-host",
     "commands",
     "editor-completions",
-    "status",
-    "sidebar-views",
-    "menus",
-    "keybindings",
-    "configuration"
+    "status"
   ],
   "contributes": {
     "commands": [
@@ -34,7 +30,8 @@
       {
         "id": "delg.web-forge.snippet-guide",
         "title": "Web Forge",
-        "location": "sidebar"
+        "location": "sidebar",
+        "icon": "M8 7 L3 12 L8 17 M16 7 L21 12 L16 17 M14 4 L10 20"
       }
     ],
     "menus": [
@@ -64,11 +61,58 @@
         "default": true,
         "description": "Enable Web Forge completion suggestions.",
         "scope": "global"
+      },
+      {
+        "key": "delg.web-forge.html.enabled",
+        "type": "boolean",
+        "default": true,
+        "description": "Enable HTML and structural abbreviation completions.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.web-forge.css.enabled",
+        "type": "boolean",
+        "default": true,
+        "description": "Enable CSS, SCSS, and Less completions.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.web-forge.javascript.enabled",
+        "type": "boolean",
+        "default": true,
+        "description": "Enable JavaScript and TypeScript completions.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.web-forge.frameworks.enabled",
+        "type": "boolean",
+        "default": true,
+        "description": "Enable React and Vue framework completions.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.web-forge.html.autoTags",
+        "type": "boolean",
+        "default": true,
+        "description": "Automatically show the complete HTML tag catalog after typing <.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.web-forge.html.quoteStyle",
+        "type": "enum",
+        "enum": ["double", "single"],
+        "default": "double",
+        "description": "Quote style used for generated HTML and JSX attributes.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.web-forge.indentStyle",
+        "type": "enum",
+        "enum": ["tabs", "spaces-2", "spaces-4"],
+        "default": "tabs",
+        "description": "Indentation used by generated multiline snippets.",
+        "scope": "global"
       }
     ]
-  },
-  "source": {
-    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
-    "commit": "fafe7b783dd40512975e5e99501c998bf946bc8a"
   }
 }
