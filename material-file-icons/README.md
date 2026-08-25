@@ -112,6 +112,6 @@ publishing.
 
 ## Source provenance
 
-Before publishing, add the canonical `source.repository` and exact committed
-source SHA to the manifest, then rebuild. Use those same values on the publish
-page so the marketplace can evaluate release provenance.
+The packaged manifest anchors version 1.3.0 to source commit
+`749a3f3809b06d28c2732d5a8f3e1f80e31e8b42`. Use the same repository and commit
+on the publish page so the marketplace can evaluate release provenance.
