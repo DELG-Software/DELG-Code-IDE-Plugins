@@ -108,13 +108,15 @@ addIcon('cloud', '#7B42BC', ['.tf', '.tfvars'])
 
 export default function activate(delg) {
   let iconCount = 0
+  const disposers = []
 
   for (const [extension, materialIcon, color] of ICONS) {
     try {
-      delg.ui.registerExplorerIcon(extension, {
+      const dispose = delg.ui.registerExplorerIcon(extension, {
         path: MATERIAL_PATHS[materialIcon],
         color
       })
+      if (typeof dispose === 'function') disposers.push(dispose)
       iconCount++
     } catch (error) {
       console.warn('[material-file-icons] skipped ' + extension, error)
@@ -129,6 +131,8 @@ export default function activate(delg) {
     )
     if (result && typeof result.catch === 'function') {
       void result.catch((error) => console.warn('[material-file-icons] could not register status item', error))
+    } else if (typeof result === 'function') {
+      disposers.push(result)
     }
   } catch (error) {
     console.warn('[material-file-icons] could not register status item', error)
@@ -149,5 +153,6 @@ export default function activate(delg) {
     if (disposed) return
     disposed = true
     disposeSummary?.()
+    for (const dispose of disposers.reverse()) dispose()
   }
 }

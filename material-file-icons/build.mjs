@@ -89,7 +89,7 @@ export function validateManifest(manifest) {
   invariant(object(manifest.engines) && typeof manifest.engines.delgIde === 'string', 'engines.delgIde is required')
   const engineMatch = /^>=(.+)$/.exec(manifest.engines.delgIde)
   invariant(engineMatch, 'engines.delgIde must be a >= semantic version range')
-  invariant(compareTuple(semverTuple(engineMatch[1], 'engines.delgIde'), [0, 3, 0]) >= 0, 'engines.delgIde must require >=0.3.0 or newer')
+  invariant(compareTuple(semverTuple(engineMatch[1], 'engines.delgIde'), [0, 16, 5]) >= 0, 'engines.delgIde must require >=0.16.5 or newer')
 
   invariant(Array.isArray(manifest.capabilities) && manifest.capabilities.length > 0, 'capabilities must be a non-empty array')
   invariant(new Set(manifest.capabilities).size === manifest.capabilities.length && manifest.capabilities.every((item) => typeof item === 'string' && item.length > 0), 'capabilities must contain unique non-empty strings')

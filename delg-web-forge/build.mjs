@@ -1,11 +1,28 @@
 import { createHash } from 'node:crypto'
 import { readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { dirname, isAbsolute, join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { strToU8, unzipSync, zipSync } from 'fflate'
 
 const root = dirname(fileURLToPath(import.meta.url))
+const MAX_MEDIA_BYTES = 2 * 1024 * 1024
+const MAX_MEDIA_FILES = 6
+const MEDIA_EXTENSION = /\.(png|jpe?g|gif|webp)$/i
+
+function packagePath(value, field) {
+  if (typeof value !== 'string' || !value || value !== value.trim()) {
+    throw new Error(`${field} must be a non-empty relative path`)
+  }
+  if (isAbsolute(value) || value.startsWith('/') || value.includes('\\')) {
+    throw new Error(`${field} must use a relative forward-slash path`)
+  }
+  const segments = value.split('/')
+  if (!segments.every((segment) => segment && segment !== '.' && segment !== '..')) {
+    throw new Error(`${field} must not contain empty, current, or parent segments`)
+  }
+  return value
+}
 const tests = spawnSync(process.execPath, ['--test', join(root, 'plugin.test.mjs')], { stdio: 'inherit' })
 if (tests.status !== 0) throw new Error('Web Forge tests failed; package was not built')
 const manifestPath = join(root, 'manifest.json')
@@ -40,27 +57,39 @@ if (manifest.source !== undefined) {
     throw new Error('manifest.json source.commit must be a full 40- or 64-character hexadecimal commit id')
   }
 }
-if (
-  manifest.entry.startsWith('/') ||
-  manifest.entry.includes('\\') ||
-  manifest.entry === '..' ||
-  manifest.entry.startsWith('../') ||
-  manifest.entry.includes('/../')
-) {
-  throw new Error(`manifest.json entry path is unsafe: ${manifest.entry}`)
+const entry = packagePath(manifest.entry, 'manifest.json entry')
+const media = []
+if (manifest.icon !== undefined) media.push(packagePath(manifest.icon, 'manifest.json icon'))
+if (manifest.images !== undefined) {
+  if (!Array.isArray(manifest.images) || manifest.images.length > 5) {
+    throw new Error('manifest.json images must be an array with at most five paths')
+  }
+  manifest.images.forEach((path, index) => media.push(packagePath(path, `manifest.json images[${index}]`)))
+}
+if (media.length > MAX_MEDIA_FILES || !media.every((path) => MEDIA_EXTENSION.test(path))) {
+  throw new Error('manifest media must contain at most one icon and five PNG, JPEG, GIF, or WebP images')
+}
+if (new Set(['manifest.json', entry, ...media]).size !== media.length + 2) {
+  throw new Error('manifest entry and media paths must be unique')
 }
 
-const entryBytes = await readFile(join(root, manifest.entry))
+const entryBytes = await readFile(join(root, ...entry.split('/')))
 const manifestBytes = strToU8(manifestText)
-const packageBytes = zipSync({
+const archiveFiles = {
   'manifest.json': manifestBytes,
-  [manifest.entry]: entryBytes
-}, { level: 6, mtime: new Date(1980, 0, 1, 0, 0, 0, 0) })
+  [entry]: entryBytes
+}
+for (const path of media) {
+  const bytes = await readFile(join(root, ...path.split('/')))
+  if (bytes.byteLength > MAX_MEDIA_BYTES) throw new Error(`${path} exceeds the 2 MB media limit`)
+  archiveFiles[path] = bytes
+}
+const packageBytes = zipSync(archiveFiles, { level: 6, mtime: new Date(1980, 0, 1, 0, 0, 0, 0) })
 
 // Verify the archive before replacing any previously built package.
 const embedded = unzipSync(packageBytes)
 const embeddedNames = Object.keys(embedded).sort()
-const expectedNames = ['manifest.json', manifest.entry].sort()
+const expectedNames = ['manifest.json', entry, ...media].sort()
 if (embeddedNames.join('\n') !== expectedNames.join('\n')) {
   throw new Error(`package contains unexpected files: ${embeddedNames.join(', ')}`)
 }
@@ -72,8 +101,13 @@ if (
 ) {
   throw new Error('embedded manifest id, version, or entry does not match manifest.json')
 }
-if (!Buffer.from(embedded[manifest.entry]).equals(entryBytes)) {
-  throw new Error(`embedded ${manifest.entry} bytes do not match the source file`)
+if (!Buffer.from(embedded[entry]).equals(entryBytes)) {
+  throw new Error(`embedded ${entry} bytes do not match the source file`)
+}
+for (const path of media) {
+  if (!Buffer.from(embedded[path]).equals(archiveFiles[path])) {
+    throw new Error(`embedded ${path} bytes do not match the source file`)
+  }
 }
 
 const artifactPattern = /^delg-web-forge-.+\.delg-plugin(?:\.tmp)?$/
@@ -91,5 +125,5 @@ await rename(temporary, output)
 
 const digest = createHash('sha256').update(packageBytes).digest('hex').toUpperCase()
 console.log(`Created ${outputName}`)
-console.log(`Verified ${manifest.id}@${manifest.version}: manifest.json + ${manifest.entry}`)
+console.log(`Verified ${manifest.id}@${manifest.version}: ${expectedNames.join(', ')}`)
 console.log(`SHA-256 ${digest}`)
