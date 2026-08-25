@@ -7,13 +7,13 @@
     "description": "Official DELG Plugins"
   },
   "name": "Material File Icons",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Material Design SVG file icons for the explorer, covering more than 120 file extensions.",
   "entry": "dist/plugin.js",
   "icon": "media/icon.png",
   "images": ["media/overview.png"],
   "engines": {
-    "delgIde": ">=0.3.0"
+    "delgIde": ">=0.16.5"
   },
   "capabilities": [
     "commands",
@@ -54,9 +54,5 @@
         "tooltip": "Registered Material explorer icons"
       }
     ]
-  },
-  "source": {
-    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
-    "commit": "42e214c6cb7100e078b24f99766fe9e697cdda3d"
   }
 }

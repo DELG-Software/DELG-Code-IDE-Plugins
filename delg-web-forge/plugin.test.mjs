@@ -17,7 +17,9 @@ const INDENT_STYLE_KEY = 'delg.web-forge.indentStyle'
 test('keeps manifest, package metadata, capabilities, and configuration aligned', () => {
   assert.equal(manifest.id, 'delg.web-forge')
   assert.equal(manifest.version, packageMetadata.version)
-  assert.equal(manifest.engines.delgIde, '>=0.4.5')
+  assert.equal(manifest.engines.delgIde, '>=0.16.5')
+  assert.equal(manifest.icon, 'media/icon.png')
+  assert.deepEqual(manifest.images, ['media/overview.png'])
   assert.deepEqual(manifest.capabilities, ['full-host', 'commands', 'editor-completions', 'status'])
   if (manifest.source !== undefined) {
     assert.equal(manifest.source.repository, 'https://github.com/DELG-Software/DELG-Code-IDE-Plugins')

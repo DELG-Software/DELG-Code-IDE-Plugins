@@ -13,12 +13,12 @@ const { default: activate } = await import(`data:text/javascript;base64,${Buffer
 const manifest = JSON.parse(await readFile(join(root, 'manifest.json'), 'utf8'))
 
 function host(overrides = {}) {
-  const calls = { icons: [], statusItems: [], statuses: [], messages: [], disposed: 0 }
+  const calls = { icons: [], statusItems: [], statuses: [], messages: [], disposed: 0, iconDisposals: 0, statusDisposals: 0 }
   const delg = {
     ...overrides,
     ui: {
-      registerExplorerIcon(extension, icon) { calls.icons.push([extension, icon]) },
-      registerStatusBarItem(...args) { calls.statusItems.push(args) },
+      registerExplorerIcon(extension, icon) { calls.icons.push([extension, icon]); return () => { calls.iconDisposals++ } },
+      registerStatusBarItem(...args) { calls.statusItems.push(args); return () => { calls.statusDisposals++ } },
       setStatus(value) { calls.statuses.push(value) },
       showMessage(value) { calls.messages.push(value) },
       ...overrides.ui
@@ -59,6 +59,8 @@ describe('activation', () => {
     const dispose = activate(delg)
     dispose(); dispose()
     assert.equal(calls.disposed, 1)
+    assert.equal(calls.iconDisposals, calls.icons.length)
+    assert.equal(calls.statusDisposals, 1)
   })
 
   test('handles fulfilled and rejected host promises without unhandled rejections', async () => {
@@ -80,7 +82,7 @@ describe('manifest schema', () => {
   test('accepts the shipped manifest and source omission', () => assert.doesNotThrow(() => validateManifest(manifest)))
   test('rejects traversal, non-strict versions, old engines, and partial source', () => {
     for (const patch of [
-      { entry: '../plugin.js' }, { version: '1.2' }, { engines: { delgIde: '>=0.2.9' } },
+      { entry: '../plugin.js' }, { version: '1.2' }, { engines: { delgIde: '>=0.16.4' } },
       { source: { repository: 'https://github.com/delg/material-file-icons' } },
       { source: { repository: 'http://github.com/delg/material-file-icons', commit: 'a'.repeat(40) } }
     ]) assert.throws(() => validateManifest({ ...manifest, ...patch }))

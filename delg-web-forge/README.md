@@ -2,6 +2,9 @@
 
 A practical web-development toolkit for DELG Code IDE. Type `!` in HTML for an automatic document suggestion, start any HTML or JSX element with `<` for the complete tag catalog, or type an abbreviation below and press `Ctrl+Space`.
 
+Version 0.5.0 targets DELG IDE 0.16.5 and newer. Its marketplace listing now
+includes a compact plugin icon and a gallery preview under `media/`.
+
 Open the **Web Forge** sidebar for a searchable, clickable snippet guide, or run **Web Forge: Show Snippet Guide** from the command palette. Clicking a leaf inserts its snippet into the active editor. The guide command is also available from the editor context menu and with `Ctrl+Alt+W` (`Cmd+Alt+W` on macOS).
 
 Plugin settings provide a global switch plus separate HTML, CSS, JavaScript, and framework switches. Automatic tag discovery, HTML quote style, and tabs/two-space/four-space indentation are configurable independently.
@@ -75,5 +78,5 @@ manifest. Full Host releases require an explicit trust action before activation.
 Developer-mode folder links run as Full Host development plugins and do not use
 the signed marketplace certificate flow.
 
-The packaged manifest anchors its source provenance to commit
-`21d2663c14f96a861675540e6cffb714ab3d9c33` in this repository.
+Before publishing, add `source.repository` and the exact committed source SHA to
+the manifest, then rebuild so the marketplace can evaluate release provenance.
