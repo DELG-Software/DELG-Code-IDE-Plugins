@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "delg.web-forge",
   "publisherId": "6a5302600325fb03204c8760",
   "publisher": {
@@ -15,19 +15,305 @@
     "media/overview.png"
   ],
   "engines": {
-    "delgIde": ">=0.16.5"
+    "delgIde": ">=0.17.2"
   },
   "capabilities": [
-    "full-host",
     "commands",
     "editor-completions",
-    "status"
+    "editor-open",
+    "status",
+    "status-bar",
+    "trusted-ui"
   ],
   "contributes": {
     "commands": [
       {
         "command": "delg.web-forge.about",
         "title": "Web Forge: Show Snippet Guide"
+      },
+      {
+        "command": "delg.web-forge.insert.html.0",
+        "title": "Web Forge: Insert !"
+      },
+      {
+        "command": "delg.web-forge.insert.html.1",
+        "title": "Web Forge: Insert html:5"
+      },
+      {
+        "command": "delg.web-forge.insert.html.2",
+        "title": "Web Forge: Insert link:css"
+      },
+      {
+        "command": "delg.web-forge.insert.html.3",
+        "title": "Web Forge: Insert script:src"
+      },
+      {
+        "command": "delg.web-forge.insert.html.4",
+        "title": "Web Forge: Insert meta:vp"
+      },
+      {
+        "command": "delg.web-forge.insert.html.5",
+        "title": "Web Forge: Insert div.card"
+      },
+      {
+        "command": "delg.web-forge.insert.html.6",
+        "title": "Web Forge: Insert ul>li*3"
+      },
+      {
+        "command": "delg.web-forge.insert.html.7",
+        "title": "Web Forge: Insert button.primary[type=button]{Save}"
+      },
+      {
+        "command": "delg.web-forge.insert.css.0",
+        "title": "Web Forge: Insert df"
+      },
+      {
+        "command": "delg.web-forge.insert.css.1",
+        "title": "Web Forge: Insert dg"
+      },
+      {
+        "command": "delg.web-forge.insert.css.2",
+        "title": "Web Forge: Insert dn"
+      },
+      {
+        "command": "delg.web-forge.insert.css.3",
+        "title": "Web Forge: Insert center"
+      },
+      {
+        "command": "delg.web-forge.insert.css.4",
+        "title": "Web Forge: Insert gridauto"
+      },
+      {
+        "command": "delg.web-forge.insert.css.5",
+        "title": "Web Forge: Insert posa"
+      },
+      {
+        "command": "delg.web-forge.insert.css.6",
+        "title": "Web Forge: Insert posr"
+      },
+      {
+        "command": "delg.web-forge.insert.css.7",
+        "title": "Web Forge: Insert posf"
+      },
+      {
+        "command": "delg.web-forge.insert.css.8",
+        "title": "Web Forge: Insert m"
+      },
+      {
+        "command": "delg.web-forge.insert.css.9",
+        "title": "Web Forge: Insert mx"
+      },
+      {
+        "command": "delg.web-forge.insert.css.10",
+        "title": "Web Forge: Insert p"
+      },
+      {
+        "command": "delg.web-forge.insert.css.11",
+        "title": "Web Forge: Insert w100"
+      },
+      {
+        "command": "delg.web-forge.insert.css.12",
+        "title": "Web Forge: Insert h100"
+      },
+      {
+        "command": "delg.web-forge.insert.css.13",
+        "title": "Web Forge: Insert minfull"
+      },
+      {
+        "command": "delg.web-forge.insert.css.14",
+        "title": "Web Forge: Insert c"
+      },
+      {
+        "command": "delg.web-forge.insert.css.15",
+        "title": "Web Forge: Insert bgc"
+      },
+      {
+        "command": "delg.web-forge.insert.css.16",
+        "title": "Web Forge: Insert fz"
+      },
+      {
+        "command": "delg.web-forge.insert.css.17",
+        "title": "Web Forge: Insert fw"
+      },
+      {
+        "command": "delg.web-forge.insert.css.18",
+        "title": "Web Forge: Insert br"
+      },
+      {
+        "command": "delg.web-forge.insert.css.19",
+        "title": "Web Forge: Insert shadow"
+      },
+      {
+        "command": "delg.web-forge.insert.css.20",
+        "title": "Web Forge: Insert transition"
+      },
+      {
+        "command": "delg.web-forge.insert.css.21",
+        "title": "Web Forge: Insert truncate"
+      },
+      {
+        "command": "delg.web-forge.insert.css.22",
+        "title": "Web Forge: Insert media"
+      },
+      {
+        "command": "delg.web-forge.insert.css.23",
+        "title": "Web Forge: Insert keyframes"
+      },
+      {
+        "command": "delg.web-forge.insert.css.24",
+        "title": "Web Forge: Insert vars"
+      },
+      {
+        "command": "delg.web-forge.insert.css.25",
+        "title": "Web Forge: Insert m10"
+      },
+      {
+        "command": "delg.web-forge.insert.css.26",
+        "title": "Web Forge: Insert mx10-20"
+      },
+      {
+        "command": "delg.web-forge.insert.css.27",
+        "title": "Web Forge: Insert w50p"
+      },
+      {
+        "command": "delg.web-forge.insert.css.28",
+        "title": "Web Forge: Insert bg#fff"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.0",
+        "title": "Web Forge: Insert clg"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.1",
+        "title": "Web Forge: Insert cle"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.2",
+        "title": "Web Forge: Insert fn"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.3",
+        "title": "Web Forge: Insert afn"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.4",
+        "title": "Web Forge: Insert imp"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.5",
+        "title": "Web Forge: Insert imd"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.6",
+        "title": "Web Forge: Insert exp"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.7",
+        "title": "Web Forge: Insert trycatch"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.8",
+        "title": "Web Forge: Insert fetch"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.9",
+        "title": "Web Forge: Insert forof"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.10",
+        "title": "Web Forge: Insert map"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.11",
+        "title": "Web Forge: Insert filter"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.12",
+        "title": "Web Forge: Insert reduce"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.13",
+        "title": "Web Forge: Insert promise"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.14",
+        "title": "Web Forge: Insert debounce"
+      },
+      {
+        "command": "delg.web-forge.insert.javascript.15",
+        "title": "Web Forge: Insert domready"
+      },
+      {
+        "command": "delg.web-forge.insert.typescript.0",
+        "title": "Web Forge: Insert interface"
+      },
+      {
+        "command": "delg.web-forge.insert.typescript.1",
+        "title": "Web Forge: Insert type"
+      },
+      {
+        "command": "delg.web-forge.insert.typescript.2",
+        "title": "Web Forge: Insert enum"
+      },
+      {
+        "command": "delg.web-forge.insert.typescript.3",
+        "title": "Web Forge: Insert guard"
+      },
+      {
+        "command": "delg.web-forge.insert.typescript.4",
+        "title": "Web Forge: Insert generic"
+      },
+      {
+        "command": "delg.web-forge.insert.react.0",
+        "title": "Web Forge: Insert rafc"
+      },
+      {
+        "command": "delg.web-forge.insert.react.1",
+        "title": "Web Forge: Insert usestate"
+      },
+      {
+        "command": "delg.web-forge.insert.react.2",
+        "title": "Web Forge: Insert useeffect"
+      },
+      {
+        "command": "delg.web-forge.insert.react.3",
+        "title": "Web Forge: Insert usememo"
+      },
+      {
+        "command": "delg.web-forge.insert.react.4",
+        "title": "Web Forge: Insert usecallback"
+      },
+      {
+        "command": "delg.web-forge.insert.react.5",
+        "title": "Web Forge: Insert rfc"
+      },
+      {
+        "command": "delg.web-forge.insert.vue.0",
+        "title": "Web Forge: Insert vbase"
+      },
+      {
+        "command": "delg.web-forge.insert.vue.1",
+        "title": "Web Forge: Insert vref"
+      },
+      {
+        "command": "delg.web-forge.insert.vue.2",
+        "title": "Web Forge: Insert vcomputed"
+      },
+      {
+        "command": "delg.web-forge.insert.vue.3",
+        "title": "Web Forge: Insert vwatch"
+      },
+      {
+        "command": "delg.web-forge.insert.vue.4",
+        "title": "Web Forge: Insert vonmounted"
+      },
+      {
+        "command": "delg.web-forge.insert.vue.5",
+        "title": "Web Forge: Insert vdefineprops"
+      },
+      {
+        "command": "delg.web-forge.insert.vue.6",
+        "title": "Web Forge: Insert vdefineemits"
       }
     ],
     "views": [

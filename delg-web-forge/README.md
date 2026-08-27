@@ -70,13 +70,14 @@ package and manifest versions, verifies the embedded archive bytes, and removes
 older Web Forge packages so the folder contains only the artifact matching the
 current manifest version.
 
-The `full-host` capability in `manifest.json` makes a marketplace release
-require a Full Host certificate. The package itself is not a certificate and
-does not prove publisher identity: marketplace installation also verifies the
-download SHA-256 and a server-issued certificate whose publisher ID matches the
-manifest. Full Host releases require an explicit trust action before activation.
-Developer-mode folder links run as Full Host development plugins and do not use
-the signed marketplace certificate flow.
+The package uses the schema-v2 sandboxed completion API. Its declared
+capabilities are reviewed at install time and sensitive operations receive a
+separate first-use approval; it does not require the deprecated `full-host`
+runtime. The package itself is not a certificate and does not prove publisher
+identity: marketplace installation also verifies the download SHA-256 and a
+server-issued certificate whose publisher ID matches the manifest. Developer-
+mode folder links remain local development plugins and do not use the signed
+marketplace certificate flow.
 
 The packaged manifest anchors version 0.5.0 to source commit
 `749a3f3809b06d28c2732d5a8f3e1f80e31e8b42` for marketplace provenance.

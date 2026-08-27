@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.live-server",
+  "publisherId": "6a5302600325fb03204c8760",
+  "publisher": {
+    "displayName": "delg",
+    "description": "Official DELG Plugins"
+  },
+  "name": "DELG Live Server",
+  "description": "Serve a workspace locally and refresh the browser when files change.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": { "delgIde": ">=0.17.2" },
+  "capabilities": [
+    "commands",
+    "workspace-read",
+    "workspace-watch",
+    "editor-read",
+    "local-static-server",
+    "open-external",
+    "status",
+    "status-bar",
+    "trusted-ui"
+  ],
+  "contributes": {
+    "commands": [
+      { "command": "delg.live-server.start", "title": "Live Server: Start Server" },
+      { "command": "delg.live-server.stop", "title": "Live Server: Stop Server" },
+      { "command": "delg.live-server.restart", "title": "Live Server: Restart Server" },
+      { "command": "delg.live-server.open", "title": "Live Server: Open in Browser" }
+    ],
+    "menus": [
+      { "command": "delg.live-server.open", "location": "editor/context", "when": "editorFocus", "group": "live-server" },
+      { "command": "delg.live-server.start", "location": "commandPalette", "group": "live-server" },
+      { "command": "delg.live-server.stop", "location": "commandPalette", "group": "live-server" },
+      { "command": "delg.live-server.restart", "location": "commandPalette", "group": "live-server" },
+      { "command": "delg.live-server.open", "location": "commandPalette", "group": "live-server" }
+    ],
+    "keybindings": [
+      { "command": "delg.live-server.open", "key": "ctrl+alt+l", "mac": "cmd+alt+l" }
+    ],
+    "configuration": [
+      { "key": "delg.live-server.root", "type": "string", "default": ".", "description": "Workspace-relative directory to serve.", "scope": "global" },
+      { "key": "delg.live-server.index", "type": "string", "default": "index.html", "description": "Index file relative to the content root.", "scope": "global" },
+      { "key": "delg.live-server.spaFallback", "type": "boolean", "default": false, "description": "Serve the index file for extensionless routes.", "scope": "global" },
+      { "key": "delg.live-server.liveReload", "type": "boolean", "default": true, "description": "Reload the browser after workspace files change.", "scope": "global" },
+      { "key": "delg.live-server.openBrowser", "type": "boolean", "default": true, "description": "Open the system browser when starting from the Open command.", "scope": "global" },
+      { "key": "delg.live-server.exclude", "type": "string", "default": "", "description": "Comma-separated workspace directory names to exclude.", "scope": "global" }
+    ],
+    "statusBarItems": [
+      { "id": "delg.live-server.status", "text": "Live Server: stopped", "tooltip": "DELG Live Server", "command": "delg.live-server.open" }
+    ]
+  }
+}
