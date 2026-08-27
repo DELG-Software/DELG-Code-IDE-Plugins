@@ -1,0 +1,10 @@
+{
+  "name": "@delg-plugins/delg-live-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test plugin.test.mjs",
+    "build": "node build.mjs"
+  }
+}

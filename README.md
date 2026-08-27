@@ -5,7 +5,8 @@ First-party plugins built against the current DELG IDE plugin contract.
 | Plugin | Purpose | Certification |
 | --- | --- | --- |
 | [Material File Icons](./material-file-icons/) | Material Design SVG icons and an in-IDE icon catalog. | Trusted UI |
-| [DELG Web Forge](./delg-web-forge/) | Web-development abbreviations and Monaco completion snippets. | Full Host |
+| [DELG Web Forge](./delg-web-forge/) | Web-development abbreviations and sandboxed Monaco completion snippets. | Trusted UI |
+| [DELG Live Server](./delg-live-server/) | Loopback static server with browser live reload. | Verified |
 
 The source folder for each plugin contains its manifest, runtime entry point,
 build script, documentation, and versioned `.delg-plugin` archive. Compatibility
