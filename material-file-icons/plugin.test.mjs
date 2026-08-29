@@ -79,10 +79,18 @@ describe('activation', () => {
 })
 
 describe('manifest schema', () => {
-  test('accepts the shipped manifest and source omission', () => assert.doesNotThrow(() => validateManifest(manifest)))
+  test('declares the schema-v2 Trusted UI contract', () => {
+    assert.equal(manifest.schemaVersion, 2)
+    assert.equal(manifest.engines.delgIde, '>=0.17.2')
+    for (const capability of ['commands', 'explorer-icons', 'status', 'status-bar', 'trusted-ui']) {
+      assert.ok(manifest.capabilities.includes(capability))
+    }
+    assert.ok(!manifest.capabilities.includes('full-host'))
+    assert.doesNotThrow(() => validateManifest(manifest))
+  })
   test('rejects traversal, non-strict versions, old engines, and partial source', () => {
     for (const patch of [
-      { entry: '../plugin.js' }, { version: '1.2' }, { engines: { delgIde: '>=0.16.4' } },
+      { schemaVersion: 1 }, { entry: '../plugin.js' }, { version: '1.2' }, { engines: { delgIde: '>=0.17.1' } },
       { source: { repository: 'https://github.com/delg/material-file-icons' } },
       { source: { repository: 'http://github.com/delg/material-file-icons', commit: 'a'.repeat(40) } }
     ]) assert.throws(() => validateManifest({ ...manifest, ...patch }))

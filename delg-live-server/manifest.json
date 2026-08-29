@@ -8,8 +8,12 @@
   },
   "name": "DELG Live Server",
   "description": "Serve a workspace locally and refresh the browser when files change.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "entry": "plugin.js",
+  "images": [
+    "media/files-in-root.png",
+    "media/command-palette.png"
+  ],
   "engines": { "delgIde": ">=0.17.2" },
   "capabilities": [
     "commands",
@@ -50,5 +54,9 @@
     "statusBarItems": [
       { "id": "delg.live-server.status", "text": "Live Server: stopped", "tooltip": "DELG Live Server", "command": "delg.live-server.open" }
     ]
+  },
+  "source": {
+    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
+    "commit": "6657b9a5c37ce415b6df7dd741381ae0e8f4f057"
   }
 }

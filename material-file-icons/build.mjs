@@ -66,14 +66,14 @@ function validateContributions(manifest) {
   invariant((contributes.statusBarItems || []).every((item) => typeof item?.id === 'string' && item.id.startsWith(`${manifest.id}.`)), 'contributed status bar IDs must be owned by the plugin')
 
   // These APIs are used directly by this plugin even though they are not all contributions.
-  for (const required of ['commands', 'explorer-icons', 'status', 'status-bar']) {
+  for (const required of ['commands', 'explorer-icons', 'status', 'status-bar', 'trusted-ui']) {
     invariant(capabilities.has(required), `material-file-icons requires the ${required} capability`)
   }
 }
 
 export function validateManifest(manifest) {
   invariant(object(manifest), 'manifest.json must contain an object')
-  invariant(manifest.schemaVersion === 1, 'schemaVersion must be 1')
+  invariant(manifest.schemaVersion === 2, 'schemaVersion must be 2')
   invariant(typeof manifest.id === 'string' && /^[a-z0-9][a-z0-9.-]*$/i.test(manifest.id), 'id must be a valid plugin ID')
   invariant(typeof manifest.publisherId === 'string' && manifest.publisherId.trim().length > 0, 'publisherId is required')
   invariant(object(manifest.publisher), 'publisher profile is required')
@@ -89,7 +89,7 @@ export function validateManifest(manifest) {
   invariant(object(manifest.engines) && typeof manifest.engines.delgIde === 'string', 'engines.delgIde is required')
   const engineMatch = /^>=(.+)$/.exec(manifest.engines.delgIde)
   invariant(engineMatch, 'engines.delgIde must be a >= semantic version range')
-  invariant(compareTuple(semverTuple(engineMatch[1], 'engines.delgIde'), [0, 16, 5]) >= 0, 'engines.delgIde must require >=0.16.5 or newer')
+  invariant(compareTuple(semverTuple(engineMatch[1], 'engines.delgIde'), [0, 17, 2]) >= 0, 'engines.delgIde must require >=0.17.2 or newer')
 
   invariant(Array.isArray(manifest.capabilities) && manifest.capabilities.length > 0, 'capabilities must be a non-empty array')
   invariant(new Set(manifest.capabilities).size === manifest.capabilities.length && manifest.capabilities.every((item) => typeof item === 'string' && item.length > 0), 'capabilities must contain unique non-empty strings')

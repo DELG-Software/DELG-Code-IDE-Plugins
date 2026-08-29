@@ -13,6 +13,16 @@ test('manifest declares the sandboxed live-server contract', async () => {
   assert.ok(manifest.capabilities.includes('local-static-server'))
   assert.ok(manifest.capabilities.includes('workspace-watch'))
   assert.ok(!manifest.capabilities.includes('full-host'))
+  assert.deepEqual(manifest.images, ['media/files-in-root.png', 'media/command-palette.png'])
+})
+
+test('store screenshots are publishable PNGs', async () => {
+  for (const filename of ['files-in-root.png', 'command-palette.png']) {
+    const image = await readFile(join(root, 'media', filename))
+    assert.ok(image.length > 0)
+    assert.ok(image.length <= 2 * 1024 * 1024)
+    assert.deepEqual([...image.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10])
+  }
 })
 
 test('plugin exposes the four server commands', async () => {

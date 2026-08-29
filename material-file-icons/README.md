@@ -2,7 +2,7 @@
 
 Source repository: [DELG-Code-IDE-Plugins](https://github.com/DELG-Software/DELG-Code-IDE-Plugins)
 
-A sandboxed Trusted UI plugin for DELG Code IDE 0.16.5 and newer. It registers
+A sandboxed schema-v2 Trusted UI plugin for DELG Code IDE 0.17.2 and newer. It registers
 Material Design SVG Explorer icons for more than 120 file extensions.
 
 ## Features
@@ -28,8 +28,9 @@ Example registrations:
 
 ## Trusted UI runtime
 
-Version 1.3.0 targets `engines.delgIde >=0.16.5` and uses only documented
-plugin APIs and manifest contributions:
+Version 1.4.0 targets `engines.delgIde >=0.17.2`, declares the schema-v2
+capabilities it uses, and relies only on documented plugin APIs and manifest
+contributions:
 
 - `delg.ui.registerExplorerIcon` registers the safe 24x24 SVG path and color
   for each extension.
@@ -77,7 +78,7 @@ Windows/Linux and macOS keybindings.
 ## Package and hash
 
 From this plugin folder, `node build.mjs` copies `src/plugin.js` to
-`dist/plugin.js` and creates `material-file-icons-1.3.0.delg-plugin`. The ZIP
+`dist/plugin.js` and creates `material-file-icons-1.4.0.delg-plugin`. The ZIP
 archive contains exactly:
 
 ```text
@@ -93,7 +94,7 @@ from identical inputs produces the same bytes and digest. You can independently
 check the final archive with:
 
 ```powershell
-Get-FileHash .\material-file-icons-1.3.0.delg-plugin -Algorithm SHA256
+Get-FileHash .\material-file-icons-1.4.0.delg-plugin -Algorithm SHA256
 ```
 
 The marketplace records and the IDE verifies the SHA-256 of the uploaded
@@ -112,6 +113,6 @@ publishing.
 
 ## Source provenance
 
-The packaged manifest anchors version 1.3.0 to source commit
-`749a3f3809b06d28c2732d5a8f3e1f80e31e8b42`. Use the same repository and commit
-on the publish page so the marketplace can evaluate release provenance.
+Before publishing, add the canonical `source.repository` and exact committed
+source SHA to the manifest, then rebuild. Use those same values on the publish
+page so the marketplace can evaluate release provenance.

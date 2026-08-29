@@ -13,13 +13,20 @@ const tests = await import('node:child_process').then(({ spawnSync }) => spawnSy
 if (tests.status !== 0) throw new Error('Live Server tests failed')
 
 const entry = await readFile(join(root, manifest.entry))
-const packageBytes = zipSync({
+const files = {
   'manifest.json': strToU8(manifestText),
   [manifest.entry]: entry
-}, { level: 6, mtime: new Date(1980, 0, 1) })
+}
+const mediaPaths = [manifest.icon, ...(Array.isArray(manifest.images) ? manifest.images : [])]
+  .filter((path, index, paths) => typeof path === 'string' && path && paths.indexOf(path) === index)
+for (const path of mediaPaths) files[path] = await readFile(join(root, path))
+
+const packageBytes = zipSync(files, { level: 6, mtime: new Date(1980, 0, 1) })
 const embedded = unzipSync(packageBytes)
-if (!Buffer.from(embedded['manifest.json']).equals(Buffer.from(manifestText)) || !Buffer.from(embedded[manifest.entry]).equals(entry)) {
-  throw new Error('embedded package bytes do not match source files')
+for (const [path, contents] of Object.entries(files)) {
+  if (!embedded[path] || !Buffer.from(embedded[path]).equals(Buffer.from(contents))) {
+    throw new Error(`embedded package file does not match source: ${path}`)
+  }
 }
 const output = `delg-live-server-${manifest.version}.delg-plugin`
 for (const name of await readdir(root)) if (/^delg-live-server-.+\.delg-plugin(?:\.tmp)?$/.test(name)) await rm(join(root, name), { force: true })

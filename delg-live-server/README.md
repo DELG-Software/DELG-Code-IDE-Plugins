@@ -8,3 +8,7 @@ does not spawn a process, open a shell, or read files directly.
 Use **Live Server: Open in Browser** from an HTML editor or the command palette.
 The port is selected automatically and the server is stopped when the plugin,
 workspace, or IDE closes.
+
+The marketplace package includes screenshots of the plugin’s file browser and
+command palette experience in `media/files-in-root.png` and
+`media/command-palette.png`.
