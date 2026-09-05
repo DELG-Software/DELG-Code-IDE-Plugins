@@ -1,0 +1,9 @@
+{
+  "name": "delg-go-language",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Official DELG Code IDE Go language plugin",
+  "scripts": { "build": "node build.mjs" },
+  "engines": { "delgIde": ">=0.22.0" },
+  "delg": { "server": "gopls", "toolchain": "Go 1.22 or newer" }
+}

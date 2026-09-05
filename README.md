@@ -7,6 +7,9 @@ First-party plugins built against the current DELG IDE plugin contract.
 | [Material File Icons](./material-file-icons/) | Material Design SVG icons and an in-IDE icon catalog. | Trusted UI |
 | [DELG Web Forge](./delg-web-forge/) | Web-development abbreviations and sandboxed Monaco completion snippets. | Trusted UI |
 | [DELG Live Server](./delg-live-server/) | Loopback static server with browser live reload. | Verified |
+| [DELG Go Language](./delg-go-language/) | Optional Go language intelligence through the installed `gopls` toolchain. | Trusted UI |
+| [DELG Vue Language](./delg-vue-language/) | Optional Vue, TypeScript, and JavaScript intelligence with Vue's TypeScript plugin. | Trusted UI |
+| [DELG Python Language](./delg-python-language/) | Optional Python intelligence through a packaged Pyright entrypoint and project environments. | Trusted UI |
 
 The source folder for each plugin contains its manifest, runtime entry point,
 build script, documentation, and versioned `.delg-plugin` archive. Compatibility

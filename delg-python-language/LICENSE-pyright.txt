@@ -1,0 +1,2 @@
+Pyright is distributed under the MIT License.
+Upstream license: https://github.com/microsoft/pyright/blob/main/LICENSE.txt.
