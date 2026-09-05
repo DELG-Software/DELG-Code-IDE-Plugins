@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.go-language",
+  "publisherId": "6a5302600325fb03204c8760",
+  "publisher": { "displayName": "delg", "description": "Official DELG Plugins" },
+  "name": "DELG Go Language",
+  "description": "Optional Go completion, navigation, diagnostics, rename, and formatting through gopls.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": { "delgIde": ">=0.22.0" },
+  "capabilities": ["language-servers", "status", "trusted-ui"],
+  "contributes": {
+    "languageServers": [{
+      "id": "gopls",
+      "languages": ["go"],
+      "command": "gopls",
+      "args": ["serve"],
+      "projectMarkers": ["go.mod", "go.work"],
+      "configuration": { "analyses": { "unusedparams": true }, "staticcheck": true }
+    }]
+  },
+  "source": {
+    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
+    "commit": "332856311c3e57d1c69f6c7ff0001a425a3abf8a"
+  }
+}

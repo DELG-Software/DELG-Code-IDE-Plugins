@@ -1,0 +1,2 @@
+gopls is distributed by the Go project under the BSD 3-Clause License.
+The upstream license text is available at https://go.dev/LICENSE.

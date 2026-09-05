@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.vue-language",
+  "publisherId": "6a5302600325fb03204c8760",
+  "publisher": { "displayName": "delg", "description": "Official DELG Plugins" },
+  "name": "DELG Vue Language",
+  "description": "Optional Vue, TypeScript, and JavaScript intelligence with cross-file Vue and TypeScript navigation and rename.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": { "delgIde": ">=0.22.0" },
+  "capabilities": ["language-servers", "status", "trusted-ui"],
+  "contributes": {
+    "languageServers": [{
+      "id": "vue-typescript-language-server",
+      "languages": ["vue", "typescript", "javascript", "typescriptreact", "javascriptreact"],
+      "command": "",
+      "entrypoint": "servers/vue-language-server.mjs",
+      "args": ["--stdio"],
+      "projectMarkers": ["package.json", "tsconfig.json", "jsconfig.json", "vite.config.ts", "vue.config.js"],
+      "configuration": { "plugins": ["@vue/typescript-plugin"] }
+    }]
+  },
+  "source": {
+    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
+    "commit": "332856311c3e57d1c69f6c7ff0001a425a3abf8a"
+  }
+}
