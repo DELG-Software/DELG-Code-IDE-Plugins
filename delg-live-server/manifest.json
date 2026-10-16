@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
   "id": "delg.live-server",
-  "publisherId": "6a5302600325fb03204c8760",
+  "publisherId": "6ad2b252d785836086766e24",
   "publisher": {
-    "displayName": "delg",
+    "displayName": "DELG",
     "description": "Official DELG Plugins"
   },
   "name": "DELG Live Server",
   "description": "Serve a workspace locally and refresh the browser when files change.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "entry": "plugin.js",
   "images": [
     "media/files-in-root.png",

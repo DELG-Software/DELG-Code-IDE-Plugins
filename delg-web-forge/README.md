@@ -2,7 +2,7 @@
 
 A practical web-development toolkit for DELG Code IDE. Type `!` in HTML for an automatic document suggestion, start any HTML or JSX element with `<` for the complete tag catalog, or type an abbreviation below and press `Ctrl+Space`.
 
-Version 0.5.0 targets DELG IDE 0.16.5 and newer. Its marketplace listing now
+Version 0.5.1 targets DELG IDE 0.16.5 and newer. Its marketplace listing now
 includes a compact plugin icon and a gallery preview under `media/`.
 
 Open the **Web Forge** sidebar for a searchable, clickable snippet guide, or run **Web Forge: Show Snippet Guide** from the command palette. Clicking a leaf inserts its snippet into the active editor. The guide command is also available from the editor context menu and with `Ctrl+Alt+W` (`Cmd+Alt+W` on macOS).
@@ -79,5 +79,5 @@ server-issued certificate whose publisher ID matches the manifest. Developer-
 mode folder links remain local development plugins and do not use the signed
 marketplace certificate flow.
 
-The packaged manifest anchors version 0.5.0 to source commit
-`749a3f3809b06d28c2732d5a8f3e1f80e31e8b42` for marketplace provenance.
+The packaged manifest anchors version 0.5.1 to source commit
+`d932a99c468e518fabe1d7e2ff65abd3ac1f172a` for marketplace provenance.

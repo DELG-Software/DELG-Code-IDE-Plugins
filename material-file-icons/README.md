@@ -28,7 +28,7 @@ Example registrations:
 
 ## Trusted UI runtime
 
-Version 1.4.0 targets `engines.delgIde >=0.17.2`, declares the schema-v2
+Version 1.4.1 targets `engines.delgIde >=0.17.2`, declares the schema-v2
 capabilities it uses, and relies only on documented plugin APIs and manifest
 contributions:
 
@@ -78,7 +78,7 @@ Windows/Linux and macOS keybindings.
 ## Package and hash
 
 From this plugin folder, `node build.mjs` copies `src/plugin.js` to
-`dist/plugin.js` and creates `material-file-icons-1.4.0.delg-plugin`. The ZIP
+`dist/plugin.js` and creates `material-file-icons-1.4.1.delg-plugin`. The ZIP
 archive contains exactly:
 
 ```text
@@ -94,7 +94,7 @@ from identical inputs produces the same bytes and digest. You can independently
 check the final archive with:
 
 ```powershell
-Get-FileHash .\material-file-icons-1.4.0.delg-plugin -Algorithm SHA256
+Get-FileHash .\material-file-icons-1.4.1.delg-plugin -Algorithm SHA256
 ```
 
 The marketplace records and the IDE verifies the SHA-256 of the uploaded

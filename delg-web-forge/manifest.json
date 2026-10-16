@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
   "id": "delg.web-forge",
-  "publisherId": "6a5302600325fb03204c8760",
+  "publisherId": "6ad2b252d785836086766e24",
   "publisher": {
-    "displayName": "delg",
+    "displayName": "DELG",
     "description": "Official DELG Plugins"
   },
   "name": "DELG Web Forge",
   "description": "Productivity snippets and structural abbreviations for HTML, CSS, JavaScript, TypeScript, React, and Vue.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "entry": "plugin.js",
   "icon": "media/icon.png",
   "images": [
@@ -407,6 +407,6 @@
   },
   "source": {
     "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
-    "commit": "749a3f3809b06d28c2732d5a8f3e1f80e31e8b42"
+    "commit": "d932a99c468e518fabe1d7e2ff65abd3ac1f172a"
   }
 }
