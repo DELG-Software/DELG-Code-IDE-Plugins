@@ -1,6 +1,6 @@
 {
   "name": "delg-vue-language",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Official DELG Code IDE Vue and TypeScript language plugin",
   "scripts": { "build": "node build.mjs" },

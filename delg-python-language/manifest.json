@@ -5,7 +5,7 @@
   "publisher": { "displayName": "DELG", "description": "Official DELG Plugins" },
   "name": "DELG Python Language",
   "description": "Optional Python intelligence through Pyright with interpreter and virtual-environment discovery.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "entry": "plugin.js",
   "engines": { "delgIde": ">=0.22.0" },
   "capabilities": ["language-servers", "status", "trusted-ui", "storage"],
@@ -15,7 +15,7 @@
       { "key": "delg.python-language.autoDetectVenv", "type": "boolean", "default": true, "description": "Detect .venv and venv folders in the workspace.", "scope": "global" }
     ],
     "languageServers": [{
-      "id": "pyright",
+      "id": "delg.python-language.pyright",
       "languages": ["python"],
       "command": "",
       "entrypoint": "servers/pyright-langserver.mjs",
