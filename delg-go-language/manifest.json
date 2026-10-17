@@ -5,13 +5,13 @@
   "publisher": { "displayName": "DELG", "description": "Official DELG Plugins" },
   "name": "DELG Go Language",
   "description": "Optional Go completion, navigation, diagnostics, rename, and formatting through gopls.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "entry": "plugin.js",
   "engines": { "delgIde": ">=0.22.0" },
   "capabilities": ["language-servers", "status", "trusted-ui"],
   "contributes": {
     "languageServers": [{
-      "id": "gopls",
+      "id": "delg.go-language.gopls",
       "languages": ["go"],
       "command": "gopls",
       "args": ["serve"],
