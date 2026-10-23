@@ -2,7 +2,7 @@
 
 A practical web-development toolkit for DELG Code IDE. Type `!` in HTML for an automatic document suggestion, start any HTML or JSX element with `<` for the complete tag catalog, or type an abbreviation below and press `Ctrl+Space`.
 
-Version 0.6.0 targets DELG IDE 0.17.2 and newer. Its marketplace listing
+Version 0.6.0 targets DELG IDE 0.36.0 and newer. Its marketplace listing
 includes a compact plugin icon and a gallery preview under `media/`.
 
 Open the **Web Forge** sidebar for a searchable, clickable snippet guide, or run **Web Forge: Show Snippet Guide** from the command palette. Clicking a leaf inserts its snippet into the active editor. The guide command is also available from the editor context menu and with `Ctrl+Alt+W` (`Cmd+Alt+W` on macOS).
