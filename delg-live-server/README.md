@@ -9,6 +9,11 @@ Use **Live Server: Open in Browser** from an HTML editor or the command palette.
 The port is selected automatically and the server is stopped when the plugin,
 workspace, or IDE closes.
 
+The status bar shows the server's address while it runs. Click it to open the
+site, pick another page, show the full address, restart, or stop.
+**Live Server: Open a Page…** lists the HTML files in the served folder (skipping
+`node_modules` and `.git`) and opens the one you choose.
+
 The marketplace package includes screenshots of the plugin’s file browser and
 command palette experience in `media/files-in-root.png` and
 `media/command-palette.png`.

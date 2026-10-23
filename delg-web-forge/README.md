@@ -2,7 +2,7 @@
 
 A practical web-development toolkit for DELG Code IDE. Type `!` in HTML for an automatic document suggestion, start any HTML or JSX element with `<` for the complete tag catalog, or type an abbreviation below and press `Ctrl+Space`.
 
-Version 0.5.1 targets DELG IDE 0.16.5 and newer. Its marketplace listing now
+Version 0.6.0 targets DELG IDE 0.17.2 and newer. Its marketplace listing
 includes a compact plugin icon and a gallery preview under `media/`.
 
 Open the **Web Forge** sidebar for a searchable, clickable snippet guide, or run **Web Forge: Show Snippet Guide** from the command palette. Clicking a leaf inserts its snippet into the active editor. The guide command is also available from the editor context menu and with `Ctrl+Alt+W` (`Cmd+Alt+W` on macOS).
@@ -54,6 +54,37 @@ custom elements, attributes, text, grouping, climb-up, numbering, implicit conte
 - Component contracts: `vdefineprops`, `vdefineemits`
 
 Vue completions distinguish `<template>`, `<script>`, and `<style>` regions. Composition API completions add or merge their Vue imports inside the active `<script>` block.
+
+## Your own snippets
+
+Run **Web Forge: Edit Custom Snippets** to open `.delg/snippets.json` in the
+project (it is created with two examples the first time). Commit it to share
+the snippets with your team. Changes apply as soon as the file is saved.
+
+```json
+{
+  "snippets": {
+    "card": {
+      "description": "A card with a title",
+      "languages": ["html", "vue", "jsx", "tsx"],
+      "body": ["<div class=\"card\">", "\t<h2>${1:Title}</h2>", "\t$0", "</div>"]
+    },
+    "todo": { "body": "// TODO(${1:name}): $0" }
+  }
+}
+```
+
+- Names use letters, digits, `-` and `_`, and expand with `Ctrl+Space` like the
+  built-in abbreviations. A snippet with the same name as a built-in one
+  replaces it.
+- `body` is text or a list of lines. `$1`, `${1:default}` and `$0` mark tab
+  stops.
+- `languages` is optional (all languages when left out) and may list `html`,
+  `css`, `scss`, `less`, `javascript`, `typescript`, `vue`, `jsx` and `tsx`.
+  In Vue and HTML files, the `<style>` and `<script>` blocks also count as
+  `css` and `javascript` (or `typescript`).
+- Mistakes in the file are shown as a warning, and the other snippets keep
+  working.
 
 ## Local development
 

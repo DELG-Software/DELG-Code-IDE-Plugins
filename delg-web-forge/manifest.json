@@ -8,7 +8,7 @@
   },
   "name": "DELG Web Forge",
   "description": "Productivity snippets and structural abbreviations for HTML, CSS, JavaScript, TypeScript, React, and Vue.",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "entry": "plugin.js",
   "icon": "media/icon.png",
   "images": [
@@ -23,7 +23,10 @@
     "editor-open",
     "status",
     "status-bar",
-    "trusted-ui"
+    "trusted-ui",
+    "workspace-read",
+    "workspace-watch",
+    "workspace-write"
   ],
   "contributes": {
     "commands": [
@@ -314,6 +317,10 @@
       {
         "command": "delg.web-forge.insert.vue.6",
         "title": "Web Forge: Insert vdefineemits"
+      },
+      {
+        "command": "delg.web-forge.editCustomSnippets",
+        "title": "Web Forge: Edit Custom Snippets"
       }
     ],
     "views": [
@@ -390,7 +397,10 @@
       {
         "key": "delg.web-forge.html.quoteStyle",
         "type": "enum",
-        "enum": ["double", "single"],
+        "enum": [
+          "double",
+          "single"
+        ],
         "default": "double",
         "description": "Quote style used for generated HTML and JSX attributes.",
         "scope": "global"
@@ -398,7 +408,11 @@
       {
         "key": "delg.web-forge.indentStyle",
         "type": "enum",
-        "enum": ["tabs", "spaces-2", "spaces-4"],
+        "enum": [
+          "tabs",
+          "spaces-2",
+          "spaces-4"
+        ],
         "default": "tabs",
         "description": "Indentation used by generated multiline snippets.",
         "scope": "global"

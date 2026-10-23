@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { after, before, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { unzipSync } from '../../DELG-Code/ide/node_modules/fflate/esm/index.mjs'
+import { unzipSync } from 'fflate'
 import { buildPlugin, validateManifest } from './build.mjs'
 
 const root = dirname(fileURLToPath(import.meta.url))

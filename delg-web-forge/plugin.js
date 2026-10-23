@@ -569,6 +569,86 @@ function snippetFor(context, abbreviation, settings, region) {
   return null
 }
 
+// Custom snippets live in the project, so a team can commit and share them.
+export const CUSTOM_SNIPPETS_PATH = '.delg/snippets.json'
+const CUSTOM_LANGUAGES = new Set(['html', 'css', 'scss', 'less', 'javascript', 'typescript', 'vue', 'jsx', 'tsx'])
+const CUSTOM_SNIPPETS_EXAMPLE = `{
+  "snippets": {
+    "card": {
+      "description": "A card with a title",
+      "languages": ["html", "vue", "jsx", "tsx"],
+      "body": [
+        "<div class=\\"card\\">",
+        "\\t<h2>\${1:Title}</h2>",
+        "\\t$0",
+        "</div>"
+      ]
+    },
+    "todo": {
+      "body": "// TODO(\${1:name}): $0"
+    }
+  }
+}
+`
+
+// parseCustomSnippets reads .delg/snippets.json: {"snippets": {"<abbreviation>":
+// {"body": string | string[], "languages"?: string[], "description"?: string}}}.
+// Abbreviations use letters, digits, - and _ so they expand like the built-in
+// ones. Entries that do not fit are reported and skipped.
+export function parseCustomSnippets(text) {
+  const snippets = new Map()
+  const errors = []
+  let data
+  try {
+    data = JSON.parse(text)
+  } catch (error) {
+    return { snippets, errors: [`${CUSTOM_SNIPPETS_PATH} is not valid JSON: ${error.message}`] }
+  }
+  const entries = data && typeof data === 'object' && data.snippets && typeof data.snippets === 'object' && !Array.isArray(data.snippets) ? data.snippets : null
+  if (!entries) return { snippets, errors: [`${CUSTOM_SNIPPETS_PATH} needs a "snippets" object.`] }
+  for (const [abbreviation, entry] of Object.entries(entries).slice(0, 500)) {
+    if (!/^[a-zA-Z0-9_-]{1,40}$/.test(abbreviation)) {
+      errors.push(`"${abbreviation.slice(0, 40)}": use letters, digits, - and _ only.`)
+      continue
+    }
+    const body = Array.isArray(entry?.body) && entry.body.every((line) => typeof line === 'string') ? entry.body.join('\n') : entry?.body
+    if (typeof body !== 'string' || !body || body.length > 20000) {
+      errors.push(`"${abbreviation}": "body" must be text or a list of lines.`)
+      continue
+    }
+    let languages = null
+    if (entry.languages !== undefined) {
+      const listed = Array.isArray(entry.languages) ? entry.languages.map((language) => String(language).toLowerCase()) : []
+      const unknown = listed.filter((language) => !CUSTOM_LANGUAGES.has(language))
+      if (!listed.length || unknown.length) {
+        errors.push(`"${abbreviation}": "languages" may list ${[...CUSTOM_LANGUAGES].join(', ')}.`)
+        continue
+      }
+      languages = new Set(listed)
+    }
+    snippets.set(abbreviation, { body, languages, description: typeof entry.description === 'string' ? entry.description.slice(0, 200) : '' })
+  }
+  return { snippets, errors }
+}
+
+// customLanguages names the languages a custom snippet can match at the
+// cursor: the file's own (vue, jsx, tsx, html, css, ...) plus the language of
+// the <style> or <script> block the cursor is in.
+function customLanguages(context, region) {
+  const ext = extension(context.path)
+  if (ext === 'vue') return ['vue', region === 'style' ? 'css' : region === 'script' ? vueScriptLanguage(context) : 'html']
+  if (ext === 'jsx' || ext === 'tsx') return [ext]
+  if (context.language === 'html') return ['html', ...(region === 'style' ? ['css'] : region === 'script' ? ['javascript'] : [])]
+  return [context.language]
+}
+
+export function customSnippetFor(snippets, context, abbreviation, region) {
+  const snippet = snippets.get(abbreviation)
+  if (!snippet) return null
+  if (snippet.languages && !customLanguages(context, region).some((language) => snippet.languages.has(language))) return null
+  return snippet
+}
+
 export default function activate(delg) {
   const configurationKeys = new Set([
     COMPLETIONS_ENABLED_KEY, HTML_ENABLED_KEY, CSS_ENABLED_KEY, JAVASCRIPT_ENABLED_KEY,
@@ -587,6 +667,36 @@ export default function activate(delg) {
       : 'tabs'
   })
   let settings = readSettings()
+
+  let customSnippets = new Map()
+  const loadCustomSnippets = async () => {
+    let text
+    try {
+      text = await delg.workspace.readFile(CUSTOM_SNIPPETS_PATH)
+    } catch {
+      customSnippets = new Map()
+      return
+    }
+    const parsed = parseCustomSnippets(String(text))
+    customSnippets = parsed.snippets
+    if (parsed.errors.length) void Promise.resolve(delg.ui.showWarningMessage(`Web Forge custom snippets: ${parsed.errors.slice(0, 3).join(' ')}`)).catch(() => undefined)
+  }
+  void loadCustomSnippets()
+  const disposeWatch = typeof delg.workspace.watch === 'function'
+    ? delg.workspace.watch({}, (events) => {
+      if ((Array.isArray(events) ? events : [events]).some((event) => String(event?.path || '').replace(/\\/g, '/').endsWith(CUSTOM_SNIPPETS_PATH))) void loadCustomSnippets()
+    })
+    : () => {}
+
+  delg.registerCommand('delg.web-forge.editCustomSnippets', 'Web Forge: Edit Custom Snippets', async () => {
+    try {
+      await delg.workspace.readFile(CUSTOM_SNIPPETS_PATH)
+    } catch {
+      await delg.workspace.writeFile(CUSTOM_SNIPPETS_PATH, CUSTOM_SNIPPETS_EXAMPLE)
+      await loadCustomSnippets()
+    }
+    await delg.ui.openFile(CUSTOM_SNIPPETS_PATH)
+  })
 
   delg.registerCommand('delg.web-forge.about', 'Web Forge: Show Snippet Guide', () => {
     const state = settings.completions ? 'enabled' : 'disabled in plugin settings'
@@ -665,6 +775,18 @@ export default function activate(delg) {
       const quote = settings.quoteStyle === 'single' ? "'" : '"'
       return htmlSeedCompletions(context.column, dialect, quote)
     }
+    const customAbbreviation = plainTrailingAbbreviation(context.linePrefix)
+    const custom = customAbbreviation && customSnippetFor(customSnippets, context, customAbbreviation, region)
+    if (custom) {
+      return [{
+        label: customAbbreviation,
+        detail: custom.description || `Your snippet: ${customAbbreviation}`,
+        documentation: `From ${CUSTOM_SNIPPETS_PATH}.`,
+        insertText: applyFormatting(custom.body, settings),
+        kind: 'snippet',
+        replaceStartColumn: context.column - customAbbreviation.length
+      }]
+    }
     let abbreviation
     if (region === 'style' || context.language === 'css' || context.language === 'scss' || context.language === 'less') {
       abbreviation = cssTrailingAbbreviation(context.linePrefix) || plainTrailingAbbreviation(context.linePrefix)
@@ -704,5 +826,6 @@ export default function activate(delg) {
     disposed = true
     disposeCompletions()
     disposeConfiguration()
+    disposeWatch()
   }
 }

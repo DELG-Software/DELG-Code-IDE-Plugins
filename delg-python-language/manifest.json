@@ -2,27 +2,86 @@
   "schemaVersion": 2,
   "id": "delg.python-language",
   "publisherId": "6ad2b252d785836086766e24",
-  "publisher": { "displayName": "DELG", "description": "Official DELG Plugins" },
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
   "name": "DELG Python Language",
   "description": "Optional Python intelligence through Pyright with interpreter and virtual-environment discovery.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "entry": "plugin.js",
-  "engines": { "delgIde": ">=0.22.0" },
-  "capabilities": ["language-servers", "status", "trusted-ui", "storage"],
+  "engines": {
+    "delgIde": ">=0.24.2"
+  },
+  "capabilities": [
+    "commands",
+    "language-servers",
+    "status",
+    "status-bar",
+    "storage",
+    "trusted-ui",
+    "workspace-list"
+  ],
   "contributes": {
-    "configuration": [
-      { "key": "delg.python-language.interpreter", "type": "string", "default": "", "description": "Python interpreter path. Leave empty to detect the project environment.", "scope": "global" },
-      { "key": "delg.python-language.autoDetectVenv", "type": "boolean", "default": true, "description": "Detect .venv and venv folders in the workspace.", "scope": "global" }
+    "commands": [
+      {
+        "command": "delg.python-language.restart",
+        "title": "Python: Restart Language Server"
+      },
+      {
+        "command": "delg.python-language.setupHelp",
+        "title": "Python: Show Setup Help"
+      },
+      {
+        "command": "delg.python-language.showStatus",
+        "title": "Python: Language Server Status"
+      },
+      {
+        "command": "delg.python-language.chooseInterpreter",
+        "title": "Python: Choose Interpreter"
+      }
     ],
-    "languageServers": [{
-      "id": "delg.python-language.pyright",
-      "languages": ["python"],
-      "command": "",
-      "entrypoint": "servers/pyright-langserver.mjs",
-      "args": ["--stdio"],
-      "projectMarkers": ["pyproject.toml", "pyrightconfig.json", "setup.py", "requirements.txt", ".venv", "venv"],
-      "configuration": { "useLibraryCodeForTypes": true, "autoSearchPaths": true }
-    }]
+    "configuration": [
+      {
+        "key": "delg.python-language.interpreter",
+        "type": "string",
+        "default": "",
+        "description": "Python interpreter path. Leave empty to detect the project environment.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.python-language.autoDetectVenv",
+        "type": "boolean",
+        "default": true,
+        "description": "Detect .venv and venv folders in the workspace.",
+        "scope": "global"
+      }
+    ],
+    "languageServers": [
+      {
+        "id": "delg.python-language.pyright",
+        "languages": [
+          "python"
+        ],
+        "command": "",
+        "entrypoint": "servers/pyright-langserver.mjs",
+        "args": [
+          "--stdio"
+        ],
+        "projectMarkers": [
+          "pyproject.toml",
+          "pyrightconfig.json",
+          "setup.py",
+          "requirements.txt",
+          ".venv",
+          "venv"
+        ],
+        "configuration": {
+          "useLibraryCodeForTypes": true,
+          "autoSearchPaths": true
+        }
+      }
+    ]
   },
   "source": {
     "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",

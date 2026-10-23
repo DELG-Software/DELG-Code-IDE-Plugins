@@ -43,7 +43,7 @@ async function collect(directory, output = []) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name)
     if (entry.isDirectory()) await collect(path, output)
-    else if (entry.isFile() && !entry.name.endsWith('.delg-plugin') && path !== join(root, 'package.json') && path !== join(root, 'build.mjs') && path !== join(root, 'manifest.json')) output.push(path)
+    else if (entry.isFile() && !entry.name.endsWith('.delg-plugin') && !entry.name.endsWith('.test.mjs') && path !== join(root, 'package.json') && path !== join(root, 'build.mjs') && path !== join(root, 'manifest.json')) output.push(path)
   }
   return output
 }
