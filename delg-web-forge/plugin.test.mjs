@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 
-import activate from './plugin.js'
+import activate, { CUSTOM_SNIPPETS_PATH, parseCustomSnippets } from './plugin.js'
 
 const manifest = JSON.parse(await readFile(new URL('./manifest.json', import.meta.url), 'utf8'))
 const packageMetadata = JSON.parse(await readFile(new URL('./package.json', import.meta.url), 'utf8'))
@@ -20,7 +20,7 @@ test('keeps manifest, package metadata, capabilities, and configuration aligned'
   assert.equal(manifest.engines.delgIde, '>=0.17.2')
   assert.equal(manifest.icon, 'media/icon.png')
   assert.deepEqual(manifest.images, ['media/overview.png'])
-  assert.deepEqual(manifest.capabilities, ['commands', 'editor-completions', 'editor-open', 'status', 'status-bar', 'trusted-ui'])
+  assert.deepEqual(manifest.capabilities, ['commands', 'editor-completions', 'editor-open', 'status', 'status-bar', 'trusted-ui', 'workspace-read', 'workspace-watch', 'workspace-write'])
   if (manifest.source !== undefined) {
     assert.equal(manifest.source.repository, 'https://github.com/DELG-Software/DELG-Code-IDE-Plugins')
     assert.match(manifest.source.commit, /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/)
@@ -492,4 +492,90 @@ test('cleanup disposes the provider and configuration listener exactly once', ()
   dispose()
 
   assert.deepEqual(harness.disposalCounts, { completions: 1, configuration: 1 })
+})
+
+function customHarness(files) {
+  let provider
+  let watcher
+  const commands = new Map()
+  const warnings = []
+  const opened = []
+  const delg = {
+    registerCommand: (id, _title, run) => commands.set(id, run),
+    workspace: {
+      getConfiguration: () => undefined,
+      onDidChangeConfiguration: () => () => {},
+      readFile: async (path) => { if (!(path in files)) throw new Error('not found'); return files[path] },
+      writeFile: async (path, content) => { files[path] = content },
+      watch: (_options, callback) => { watcher = callback; return () => {} }
+    },
+    ui: {
+      setViewItems() {},
+      showWarningMessage: async (text) => { warnings.push(text) },
+      openFile: async (path) => { opened.push(path) },
+      registerCompletionProvider: (_languages, provide) => { provider = provide; return () => {} }
+    }
+  }
+  activate(delg)
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
+  const complete = (language, path, linePrefix, documentPrefix) => provider({ language, path, linePrefix, documentPrefix: documentPrefix || linePrefix, column: linePrefix.length + 1 })
+  return { files, warnings, opened, commands, settle, complete, change: (path) => watcher([{ type: 'changed', path }]) }
+}
+
+test('custom snippets from .delg/snippets.json expand in their languages', async () => {
+  const ide = customHarness({
+    [CUSTOM_SNIPPETS_PATH]: JSON.stringify({ snippets: {
+      hero: { body: ['<section class="hero">', '\t$0', '</section>'], languages: ['html', 'vue'], description: 'Hero section' },
+      log: { body: 'console.log($1)' },
+      clg: { body: 'console.log("mine", $1)', languages: ['javascript'] }
+    } })
+  })
+  await ide.settle()
+
+  const [hero] = ide.complete('html', 'index.html', '  hero')
+  assert.equal(hero.label, 'hero')
+  assert.equal(hero.detail, 'Hero section')
+  assert.equal(hero.insertText, '<section class="hero">\n\t$0\n</section>')
+  assert.equal(hero.replaceStartColumn, 3)
+  assert.deepEqual(ide.complete('css', 'app.css', 'hero'), [])
+  assert.equal(ide.complete('typescript', 'a.ts', 'log')[0].insertText, 'console.log($1)')
+  // A custom snippet wins over the built-in one of the same name.
+  assert.equal(ide.complete('javascript', 'a.js', 'clg')[0].insertText, 'console.log("mine", $1)')
+  // Vue: the block the cursor is in decides the language.
+  assert.equal(ide.complete('vue', 'App.vue', 'hero', '<template>\nhero')[0].label, 'hero')
+  assert.equal(ide.complete('vue', 'App.vue', 'clg', '<script>\nclg')[0].insertText, 'console.log("mine", $1)')
+})
+
+test('custom snippets reload when the file changes and the edit command creates an example', async () => {
+  const ide = customHarness({})
+  await ide.settle()
+  assert.ok(!ide.complete('javascript', 'a.js', 'card').some((item) => item.detail === 'A card with a title'))
+
+  await ide.commands.get('delg.web-forge.editCustomSnippets')()
+  assert.deepEqual(ide.opened, [CUSTOM_SNIPPETS_PATH])
+  assert.deepEqual(parseCustomSnippets(ide.files[CUSTOM_SNIPPETS_PATH]).errors, [])
+  assert.equal(ide.complete('html', 'index.html', 'card')[0].detail, 'A card with a title')
+
+  ide.files[CUSTOM_SNIPPETS_PATH] = JSON.stringify({ snippets: { card: { body: 'new card' } } })
+  ide.change(['C:', 'work', '.delg', 'snippets.json'].join(String.fromCharCode(92)))
+  await ide.settle()
+  assert.equal(ide.complete('html', 'index.html', 'card')[0].insertText, 'new card')
+
+  ide.files[CUSTOM_SNIPPETS_PATH] = '{ broken'
+  ide.change('.delg/snippets.json')
+  await ide.settle()
+  assert.match(ide.warnings[0], /not valid JSON/)
+})
+
+test('invalid custom snippets are reported and skipped', () => {
+  const { snippets, errors } = parseCustomSnippets(JSON.stringify({ snippets: {
+    'has space': { body: 'x' },
+    empty: { body: '' },
+    lang: { body: 'x', languages: ['cobol'] },
+    good: { body: ['a', 'b'] }
+  } }))
+  assert.deepEqual([...snippets.keys()], ['good'])
+  assert.equal(snippets.get('good').body, 'a\nb')
+  assert.equal(errors.length, 3)
+  assert.match(parseCustomSnippets('[]').errors[0], /"snippets" object/)
 })

@@ -2,22 +2,77 @@
   "schemaVersion": 2,
   "id": "delg.go-language",
   "publisherId": "6ad2b252d785836086766e24",
-  "publisher": { "displayName": "DELG", "description": "Official DELG Plugins" },
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
   "name": "DELG Go Language",
   "description": "Optional Go completion, navigation, diagnostics, rename, and formatting through gopls.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "entry": "plugin.js",
-  "engines": { "delgIde": ">=0.22.0" },
-  "capabilities": ["language-servers", "status", "trusted-ui"],
+  "engines": {
+    "delgIde": ">=0.24.2"
+  },
+  "capabilities": [
+    "commands",
+    "language-servers",
+    "status",
+    "status-bar",
+    "trusted-ui"
+  ],
   "contributes": {
-    "languageServers": [{
-      "id": "delg.go-language.gopls",
-      "languages": ["go"],
-      "command": "gopls",
-      "args": ["serve"],
-      "projectMarkers": ["go.mod", "go.work"],
-      "configuration": { "analyses": { "unusedparams": true }, "staticcheck": true }
-    }]
+    "commands": [
+      {
+        "command": "delg.go-language.restart",
+        "title": "Go: Restart Language Server"
+      },
+      {
+        "command": "delg.go-language.setupHelp",
+        "title": "Go: Show Setup Help"
+      },
+      {
+        "command": "delg.go-language.showStatus",
+        "title": "Go: Language Server Status"
+      }
+    ],
+    "configuration": [
+      {
+        "key": "delg.go-language.staticcheck",
+        "type": "boolean",
+        "default": true,
+        "description": "Run staticcheck's extra analyses in the editor.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.go-language.buildTags",
+        "type": "string",
+        "default": "",
+        "description": "Build tags for gopls, separated by commas (for example: integration,linux).",
+        "scope": "global"
+      }
+    ],
+    "languageServers": [
+      {
+        "id": "delg.go-language.gopls",
+        "languages": [
+          "go"
+        ],
+        "command": "gopls",
+        "args": [
+          "serve"
+        ],
+        "projectMarkers": [
+          "go.mod",
+          "go.work"
+        ],
+        "configuration": {
+          "analyses": {
+            "unusedparams": true
+          },
+          "staticcheck": true
+        }
+      }
+    ]
   },
   "source": {
     "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",

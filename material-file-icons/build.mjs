@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { access, copyFile, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { unzipSync, zipSync } from '../../DELG-Code/ide/node_modules/fflate/esm/index.mjs'
+import { unzipSync, zipSync } from 'fflate'
 
 const root = dirname(fileURLToPath(import.meta.url))
 const MAX_MEDIA_BYTES = 2 * 1024 * 1024

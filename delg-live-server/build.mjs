@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { strToU8, unzipSync, zipSync } from '../../DELG-Code/ide/node_modules/fflate/esm/index.mjs'
+import { strToU8, unzipSync, zipSync } from 'fflate'
 
 const root = dirname(fileURLToPath(import.meta.url))
 const manifestText = await readFile(join(root, 'manifest.json'), 'utf8')

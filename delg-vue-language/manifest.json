@@ -2,23 +2,68 @@
   "schemaVersion": 2,
   "id": "delg.vue-language",
   "publisherId": "6ad2b252d785836086766e24",
-  "publisher": { "displayName": "DELG", "description": "Official DELG Plugins" },
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
   "name": "DELG Vue Language",
   "description": "Optional Vue, TypeScript, and JavaScript intelligence with cross-file Vue and TypeScript navigation and rename.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "entry": "plugin.js",
-  "engines": { "delgIde": ">=0.22.0" },
-  "capabilities": ["language-servers", "status", "trusted-ui"],
+  "engines": {
+    "delgIde": ">=0.24.2"
+  },
+  "capabilities": [
+    "commands",
+    "language-servers",
+    "status",
+    "status-bar",
+    "trusted-ui"
+  ],
   "contributes": {
-    "languageServers": [{
-      "id": "delg.vue-language.vue-typescript-language-server",
-      "languages": ["vue", "typescript", "javascript", "typescriptreact", "javascriptreact"],
-      "command": "",
-      "entrypoint": "servers/vue-language-server.mjs",
-      "args": ["--stdio"],
-      "projectMarkers": ["package.json", "tsconfig.json", "jsconfig.json", "vite.config.ts", "vue.config.js"],
-      "configuration": { "plugins": ["@vue/typescript-plugin"] }
-    }]
+    "commands": [
+      {
+        "command": "delg.vue-language.restart",
+        "title": "Vue: Restart Language Server"
+      },
+      {
+        "command": "delg.vue-language.setupHelp",
+        "title": "Vue: Show Setup Help"
+      },
+      {
+        "command": "delg.vue-language.showStatus",
+        "title": "Vue: Language Server Status"
+      }
+    ],
+    "languageServers": [
+      {
+        "id": "delg.vue-language.vue-typescript-language-server",
+        "languages": [
+          "vue",
+          "typescript",
+          "javascript",
+          "typescriptreact",
+          "javascriptreact"
+        ],
+        "command": "",
+        "entrypoint": "servers/vue-language-server.mjs",
+        "args": [
+          "--stdio"
+        ],
+        "projectMarkers": [
+          "package.json",
+          "tsconfig.json",
+          "jsconfig.json",
+          "vite.config.ts",
+          "vue.config.js"
+        ],
+        "configuration": {
+          "plugins": [
+            "@vue/typescript-plugin"
+          ]
+        }
+      }
+    ]
   },
   "source": {
     "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
