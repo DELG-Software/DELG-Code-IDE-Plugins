@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.rust-language",
+  "publisherId": "6ad2b252d785836086766e24",
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
+  "name": "DELG Rust Language",
+  "description": "Optional Rust completion, navigation, diagnostics, inlay hints, rename, and formatting through rust-analyzer.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": {
+    "delgIde": ">=0.24.2"
+  },
+  "capabilities": [
+    "commands",
+    "language-servers",
+    "status",
+    "status-bar",
+    "trusted-ui"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "delg.rust-language.restart",
+        "title": "Rust: Restart Language Server"
+      },
+      {
+        "command": "delg.rust-language.setupHelp",
+        "title": "Rust: Show Setup Help"
+      },
+      {
+        "command": "delg.rust-language.showStatus",
+        "title": "Rust: Language Server Status"
+      }
+    ],
+    "configuration": [
+      {
+        "key": "delg.rust-language.checkCommand",
+        "type": "enum",
+        "enum": [
+          "check",
+          "clippy"
+        ],
+        "default": "check",
+        "description": "Command that checks the project on save: cargo check, or cargo clippy for extra lints.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.rust-language.allFeatures",
+        "type": "boolean",
+        "default": false,
+        "description": "Analyze the project with all Cargo features enabled.",
+        "scope": "global"
+      }
+    ],
+    "languageServers": [
+      {
+        "id": "delg.rust-language.rust-analyzer",
+        "languages": [
+          "rust"
+        ],
+        "command": "rust-analyzer",
+        "args": [],
+        "projectMarkers": [
+          "Cargo.toml",
+          "rust-project.json"
+        ],
+        "configuration": {
+          "check": {
+            "command": "check"
+          },
+          "rust-analyzer": {
+            "check": {
+              "command": "check"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

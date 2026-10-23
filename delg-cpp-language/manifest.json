@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.cpp-language",
+  "publisherId": "6ad2b252d785836086766e24",
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
+  "name": "DELG C/C++ Language",
+  "description": "Optional C and C++ completion, navigation, diagnostics, clang-tidy checks, rename, and formatting through clangd.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": {
+    "delgIde": ">=0.24.2"
+  },
+  "capabilities": [
+    "commands",
+    "language-servers",
+    "status",
+    "status-bar",
+    "trusted-ui"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "delg.cpp-language.restart",
+        "title": "C/C++: Restart Language Server"
+      },
+      {
+        "command": "delg.cpp-language.setupHelp",
+        "title": "C/C++: Show Setup Help"
+      },
+      {
+        "command": "delg.cpp-language.showStatus",
+        "title": "C/C++: Language Server Status"
+      }
+    ],
+    "configuration": [
+      {
+        "key": "delg.cpp-language.clangTidy",
+        "type": "boolean",
+        "default": true,
+        "description": "Show clang-tidy checks configured by the project's .clang-tidy file.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.cpp-language.headerInsertion",
+        "type": "enum",
+        "enum": [
+          "iwyu",
+          "never"
+        ],
+        "default": "iwyu",
+        "description": "Add the matching #include when a completion needs one (iwyu), or never.",
+        "scope": "global"
+      },
+      {
+        "key": "delg.cpp-language.compileCommandsDir",
+        "type": "string",
+        "default": "",
+        "description": "Folder containing compile_commands.json when it is not in the project root or a build folder (for example: out/build).",
+        "scope": "global"
+      }
+    ],
+    "languageServers": [
+      {
+        "id": "delg.cpp-language.clangd",
+        "languages": [
+          "c",
+          "cpp"
+        ],
+        "command": "clangd",
+        "args": [
+          "--background-index",
+          "--clang-tidy",
+          "--header-insertion=iwyu"
+        ]
+      }
+    ]
+  }
+}
