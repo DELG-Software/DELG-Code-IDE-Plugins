@@ -11,7 +11,7 @@
   "version": "0.2.0",
   "entry": "plugin.js",
   "engines": {
-    "delgIde": ">=0.24.2"
+    "delgIde": ">=0.36.0"
   },
   "capabilities": [
     "commands",

@@ -15,7 +15,7 @@
     "media/command-palette.png"
   ],
   "engines": {
-    "delgIde": ">=0.24.2"
+    "delgIde": ">=0.36.0"
   },
   "capabilities": [
     "commands",
