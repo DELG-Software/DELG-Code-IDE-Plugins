@@ -86,6 +86,8 @@ test('the language plugins share one copy of the status code', async () => {
   assert.ok(go.startsWith(marker))
   assert.equal(await shared('delg-vue-language'), go)
   assert.equal(await shared('delg-python-language'), go)
+  assert.equal(await shared('delg-rust-language'), go)
+  assert.equal(await shared('delg-cpp-language'), go)
 })
 
 test('a server the IDE refuses shows the setup help', async () => {

@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.config-language",
+  "publisherId": "6ad2b252d785836086766e24",
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
+  "name": "DELG Config Files",
+  "description": "YAML, JSON and TOML checking, completion, hover and formatting, with schemas for GitHub workflows, docker-compose, package.json, tsconfig and more.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": {
+    "delgIde": ">=0.24.2"
+  },
+  "capabilities": [
+    "commands",
+    "language-servers",
+    "status",
+    "trusted-ui"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "delg.config-language.restart",
+        "title": "Config Files: Restart Language Servers"
+      },
+      {
+        "command": "delg.config-language.setupHelp",
+        "title": "Config Files: Show Setup Help"
+      }
+    ],
+    "configuration": [
+      {
+        "key": "delg.config-language.schemaStore",
+        "type": "boolean",
+        "default": true,
+        "description": "Check and complete well-known config files with schemas downloaded from SchemaStore.org.",
+        "scope": "global"
+      }
+    ],
+    "languageServers": [
+      {
+        "id": "delg.config-language.yaml",
+        "languages": [
+          "yaml"
+        ],
+        "command": "",
+        "entrypoint": "servers/yaml-language-server.mjs",
+        "args": [
+          "--stdio"
+        ],
+        "configuration": {
+          "yaml": {
+            "validate": true,
+            "hover": true,
+            "completion": true,
+            "format": {
+              "enable": true
+            },
+            "schemaStore": {
+              "enable": true,
+              "url": "https://www.schemastore.org/api/json/catalog.json"
+            }
+          },
+          "redhat": {
+            "telemetry": {
+              "enabled": false
+            }
+          }
+        }
+      },
+      {
+        "id": "delg.config-language.json",
+        "languages": [
+          "json",
+          "jsonc"
+        ],
+        "command": "",
+        "entrypoint": "servers/json-language-server.mjs",
+        "args": [
+          "--stdio"
+        ],
+        "configuration": {
+          "provideFormatter": true,
+          "json": {
+            "validate": {
+              "enable": true
+            },
+            "format": {
+              "enable": true
+            },
+            "schemas": [
+              {
+                "fileMatch": [
+                  "package.json"
+                ],
+                "url": "https://json.schemastore.org/package.json"
+              },
+              {
+                "fileMatch": [
+                  "tsconfig.json",
+                  "tsconfig.*.json"
+                ],
+                "url": "https://json.schemastore.org/tsconfig.json"
+              },
+              {
+                "fileMatch": [
+                  "jsconfig.json",
+                  "jsconfig.*.json"
+                ],
+                "url": "https://json.schemastore.org/jsconfig.json"
+              },
+              {
+                "fileMatch": [
+                  ".eslintrc",
+                  ".eslintrc.json"
+                ],
+                "url": "https://json.schemastore.org/eslintrc.json"
+              },
+              {
+                "fileMatch": [
+                  ".prettierrc",
+                  ".prettierrc.json"
+                ],
+                "url": "https://json.schemastore.org/prettierrc.json"
+              },
+              {
+                "fileMatch": [
+                  ".babelrc",
+                  ".babelrc.json",
+                  "babel.config.json"
+                ],
+                "url": "https://json.schemastore.org/babelrc.json"
+              },
+              {
+                "fileMatch": [
+                  "lerna.json"
+                ],
+                "url": "https://json.schemastore.org/lerna.json"
+              },
+              {
+                "fileMatch": [
+                  "renovate.json",
+                  ".renovaterc",
+                  ".renovaterc.json"
+                ],
+                "url": "https://json.schemastore.org/renovate.json"
+              },
+              {
+                "fileMatch": [
+                  "nest-cli.json",
+                  ".nest-cli.json"
+                ],
+                "url": "https://json.schemastore.org/nest-cli.json"
+              },
+              {
+                "fileMatch": [
+                  "appsettings.json",
+                  "appsettings.*.json"
+                ],
+                "url": "https://json.schemastore.org/appsettings.json"
+              },
+              {
+                "fileMatch": [
+                  "composer.json"
+                ],
+                "url": "https://getcomposer.org/schema.json"
+              },
+              {
+                "fileMatch": [
+                  "vercel.json"
+                ],
+                "url": "https://openapi.vercel.sh/vercel.json"
+              },
+              {
+                "fileMatch": [
+                  ".swcrc"
+                ],
+                "url": "https://swc.rs/schema.json"
+              },
+              {
+                "fileMatch": [
+                  "turbo.json"
+                ],
+                "url": "https://turbo.build/schema.json"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "delg.config-language.toml",
+        "languages": [
+          "toml"
+        ],
+        "command": "",
+        "entrypoint": "servers/toml-language-server.mjs",
+        "args": [],
+        "configuration": {
+          "configurationSection": "evenBetterToml",
+          "evenBetterToml": {
+            "schema": {
+              "enabled": false
+            },
+            "formatter": {}
+          }
+        }
+      }
+    ]
+  }
+}
