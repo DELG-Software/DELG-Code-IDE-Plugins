@@ -7,8 +7,8 @@
     "description": "Official DELG Plugins"
   },
   "name": "DELG Go Language",
-  "description": "Optional Go completion, navigation, diagnostics, rename, and formatting through gopls.",
-  "version": "0.2.0",
+  "description": "Optional Go completion, navigation, diagnostics, formatting through gopls, and debugging through Delve.",
+  "version": "0.3.0",
   "entry": "plugin.js",
   "engines": {
     "delgIde": ">=0.39.0"
@@ -20,6 +20,7 @@
   ],
   "capabilities": [
     "commands",
+    "debugging",
     "language-servers",
     "status",
     "status-bar",

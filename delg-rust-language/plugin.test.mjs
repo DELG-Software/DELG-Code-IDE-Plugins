@@ -18,7 +18,24 @@ test('the registered server matches the manifest declaration', async () => {
   assert.deepEqual(serverSpec(fakeIde().delg), manifest.contributes.languageServers[0])
   const commands = manifest.contributes.commands.map(({ command }) => command)
   assert.deepEqual(commands, ['delg.rust-language.restart', 'delg.rust-language.setupHelp', 'delg.rust-language.showStatus'])
-  for (const capability of ['commands', 'status-bar', 'language-servers']) assert.ok(manifest.capabilities.includes(capability))
+  for (const capability of ['commands', 'debugging', 'status-bar', 'language-servers']) assert.ok(manifest.capabilities.includes(capability))
+})
+
+test('unloading Rust disposes a debug adapter registration that arrives late', async () => {
+  const ide = fakeIde()
+  let finishRegistration
+  let disposals = 0
+  ide.delg.debugging = {
+    registerAdapter(declaration) {
+      assert.deepEqual(declaration, { id: 'delg.rust-language.lldb-dap', kind: 'lldb-dap' })
+      return new Promise((resolve) => { finishRegistration = resolve })
+    }
+  }
+  const dispose = activate(ide.delg)
+  dispose()
+  finishRegistration({ id: 'delg.rust-language.lldb-dap', dispose: () => { disposals++ } })
+  await settle()
+  assert.equal(disposals, 1)
 })
 
 test('settings reach rust-analyzer at start and when it asks again', () => {
