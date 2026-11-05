@@ -25,7 +25,6 @@
     "language-servers",
     "status",
     "status-bar",
-    "storage",
     "trusted-ui",
     "workspace-list"
   ],

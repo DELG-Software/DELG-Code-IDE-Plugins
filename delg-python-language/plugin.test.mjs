@@ -4,14 +4,18 @@ import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import activate, { projectInterpreters, serverSpec } from './plugin.js'
-import { fakeIde } from '../test-support/fake-ide.mjs'
+import { fakeIde as baseFakeIde, loadManifest } from '../test-support/fake-ide.mjs'
+
+// The fake enforces the capabilities this plugin's manifest declares.
+const manifest = loadManifest(import.meta.url)
+const fakeIde = (settings, options) => baseFakeIde(settings, { manifest, ...options })
 
 const root = dirname(fileURLToPath(import.meta.url))
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
 
 function withWorkspace(ide, workspaceRoot, folders) {
-  ide.delg.workspace.getRoot = async () => workspaceRoot
-  ide.delg.workspace.listFiles = async (path) => folders[path] || []
+  ide.root = workspaceRoot
+  ide.folders = folders
   return ide
 }
 
@@ -22,6 +26,7 @@ test('the registered server matches the manifest declaration', async () => {
   assert.ok(commands.includes('delg.python-language.chooseInterpreter'))
   assert.ok(commands.includes('delg.python-language.showStatus'))
   assert.ok(manifest.capabilities.includes('workspace-list'))
+  assert.ok(!manifest.capabilities.includes('storage'))
 })
 
 test('virtual environments at the top of the workspace are offered', async () => {

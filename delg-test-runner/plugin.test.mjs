@@ -1,9 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import activate, { discoverTests } from './plugin.js'
+import { enforceCapabilities } from '../test-support/fake-ide.mjs'
 
 const root = dirname(fileURLToPath(import.meta.url))
 const settle = () => new Promise((resolve) => setImmediate(resolve))
@@ -105,6 +107,8 @@ function fakeIde({ files = {}, folders = {}, withTesting = true, responses = [] 
       }
     }
   }
+  // Reject calls the manifest's capabilities do not allow, like the host.
+  enforceCapabilities(delg, JSON.parse(readFileSync(join(root, 'manifest.json'), 'utf8')))
   ide.delg = delg
   return ide
 }
@@ -146,6 +150,8 @@ test('manifest declares testing and managed-task capabilities and commands', { t
   assert.equal(manifest.id, 'delg.test-runner')
   assert.ok(manifest.capabilities.includes('testing'))
   assert.ok(manifest.capabilities.includes('managed-tasks'))
+  // The testing panel needs the controller before any command runs.
+  for (const marker of ['package.json', 'go.mod', 'pytest.ini', 'pyproject.toml']) assert.ok(manifest.activationEvents.includes('workspaceContains:' + marker))
   assert.deepEqual(manifest.contributes.commands.map(({ command }) => command), [
     'delg.test-runner.refresh', 'delg.test-runner.cancel', 'delg.test-runner.setupHelp'
   ])

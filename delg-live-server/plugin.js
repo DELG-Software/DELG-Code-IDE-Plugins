@@ -29,6 +29,18 @@ export function hostOf(url) {
   }
 }
 
+// withoutToken drops the access token query the server adds to its address, so
+// the address that is shown does not leak it.
+export function withoutToken(url) {
+  try {
+    const parsed = new URL(url)
+    parsed.searchParams.delete('__delg_token')
+    return parsed.toString()
+  } catch {
+    return String(url).replace(/([?&])__delg_token=[^&#]*&?/, '$1').replace(/[?&]$/, '')
+  }
+}
+
 function contentRoot(delg) {
   const root = String(setting(delg, 'root', '.')).replaceAll('\\', '/').replace(/^\/+|\/+$/g, '')
   return root === '.' ? '' : root
@@ -153,7 +165,7 @@ async function stop(delg) {
 
 async function showUrl(delg) {
   if (!server) return quiet(delg.ui.showInformationMessage('Live Server is not running.'))
-  quiet(delg.ui.showInformationMessage('Live Server is serving at ' + server.url))
+  quiet(delg.ui.showInformationMessage('Live Server is serving at ' + withoutToken(server.url)))
 }
 
 async function menu(delg) {
