@@ -7,8 +7,8 @@
     "description": "Official DELG Plugins"
   },
   "name": "DELG Test Runner",
-  "description": "Discover and run project-level npm, Go, and pytest targets from the testing panel.",
-  "version": "0.1.0",
+  "description": "Discover individual Vitest, pytest and Go tests, run selected cases, and inspect results in the Testing panel.",
+  "version": "0.2.0",
   "entry": "plugin.js",
   "engines": {
     "delgIde": ">=0.39.0"
@@ -34,7 +34,7 @@
     "commands": [
       {
         "command": "delg.test-runner.refresh",
-        "title": "Test Runner: Refresh Projects"
+        "title": "Test Runner: Refresh Tests"
       },
       {
         "command": "delg.test-runner.cancel",
