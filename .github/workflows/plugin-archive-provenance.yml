@@ -1,0 +1,125 @@
+name: Plugin archive provenance
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the source snapshot
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Use a fixed Node.js toolchain
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.22.2
+      - name: Build source-stamped archives
+        env:
+          DELG_SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          for plugin in delg-go-language delg-rust-language delg-python-language delg-mercurial; do
+            (cd "$plugin" && node build.mjs)
+          done
+      - name: Record archive digests
+        run: |
+          node <<'NODE'
+          const { createHash } = require('node:crypto')
+          const { readFileSync, writeFileSync } = require('node:fs')
+          const paths = [
+            'delg-go-language/delg-go-language-0.3.0.delg-plugin',
+            'delg-rust-language/delg-rust-language-0.2.0.delg-plugin',
+            'delg-python-language/delg-python-language-0.3.0.delg-plugin',
+            'delg-mercurial/delg-mercurial-0.1.0.delg-plugin',
+          ]
+          const lines = paths.map(path => `${createHash('sha256').update(readFileSync(path)).digest('hex')}  ${path}`)
+          writeFileSync('SHA256SUMS', `${lines.join('\n')}\n`)
+          NODE
+      - name: Save Linux archives
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: plugin-archives-linux
+          path: |
+            delg-go-language/delg-go-language-0.3.0.delg-plugin
+            delg-rust-language/delg-rust-language-0.2.0.delg-plugin
+            delg-python-language/delg-python-language-0.3.0.delg-plugin
+            delg-mercurial/delg-mercurial-0.1.0.delg-plugin
+            SHA256SUMS
+          if-no-files-found: error
+          retention-days: 7
+
+  build-macos:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the source snapshot
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Use a fixed Node.js toolchain
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.22.2
+      - name: Build source-stamped archives
+        env:
+          DELG_SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          for plugin in delg-go-language delg-rust-language delg-python-language delg-mercurial; do
+            (cd "$plugin" && node build.mjs)
+          done
+      - name: Record archive digests
+        run: |
+          node <<'NODE'
+          const { createHash } = require('node:crypto')
+          const { readFileSync, writeFileSync } = require('node:fs')
+          const paths = [
+            'delg-go-language/delg-go-language-0.3.0.delg-plugin',
+            'delg-rust-language/delg-rust-language-0.2.0.delg-plugin',
+            'delg-python-language/delg-python-language-0.3.0.delg-plugin',
+            'delg-mercurial/delg-mercurial-0.1.0.delg-plugin',
+          ]
+          const lines = paths.map(path => `${createHash('sha256').update(readFileSync(path)).digest('hex')}  ${path}`)
+          writeFileSync('SHA256SUMS', `${lines.join('\n')}\n`)
+          NODE
+      - name: Save macOS archives
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: plugin-archives-macos
+          path: |
+            delg-go-language/delg-go-language-0.3.0.delg-plugin
+            delg-rust-language/delg-rust-language-0.2.0.delg-plugin
+            delg-python-language/delg-python-language-0.3.0.delg-plugin
+            delg-mercurial/delg-mercurial-0.1.0.delg-plugin
+            SHA256SUMS
+          if-no-files-found: error
+          retention-days: 7
+
+  verify-and-attest:
+    needs: [build-linux, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Download Linux archives
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: plugin-archives-linux
+          path: archives/linux
+      - name: Download macOS archives
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: plugin-archives-macos
+          path: archives/macos
+      - name: Require byte-identical Linux and macOS builds
+        run: diff -ru archives/linux archives/macos
+      - name: Attest the four matching archives
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-path: |
+            archives/linux/delg-go-language/delg-go-language-0.3.0.delg-plugin
+            archives/linux/delg-rust-language/delg-rust-language-0.2.0.delg-plugin
+            archives/linux/delg-python-language/delg-python-language-0.3.0.delg-plugin
+            archives/linux/delg-mercurial/delg-mercurial-0.1.0.delg-plugin

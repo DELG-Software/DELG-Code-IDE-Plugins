@@ -7,6 +7,11 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 const manifest = JSON.parse(await readFile(join(root, 'manifest.json'), 'utf8'))
 const metadata = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
 if (manifest.version !== metadata.version) throw new Error('manifest and package versions must match')
+const sourceCommit = process.env.DELG_SOURCE_COMMIT?.trim()
+if (sourceCommit) {
+  if (!/^[a-f0-9]{40}$/i.test(sourceCommit)) throw new Error('DELG_SOURCE_COMMIT must be a 40-character Git commit')
+  manifest.source = { ...manifest.source, commit: sourceCommit.toLowerCase() }
+}
 function crc32(bytes) { let crc = 0xffffffff; for (const byte of bytes) { crc ^= byte; for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1)) } return (crc ^ 0xffffffff) >>> 0 }
 function u16(value) { const b = Buffer.alloc(2); b.writeUInt16LE(value); return b }
 function u32(value) { const b = Buffer.alloc(4); b.writeUInt32LE(value >>> 0); return b }
