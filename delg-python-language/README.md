@@ -25,3 +25,40 @@ workspace `.venv` or `venv` when auto-detection is enabled.
 
 If the server cannot start, a warning explains what to install or check.
 Pyright's license ships in `LICENSE-pyright.txt`.
+
+## Debugging
+
+Use an IDE build with the debugger plugin API and allow the plugin's debugging
+permission. Install debugpy in the workspace `.venv` or `venv`, or in the
+Python installation on PATH. The debugger uses that interpreter for launch.
+
+With no selected launch configuration, open a Python file, set a gutter
+breakpoint, and press F5. To save a launch or attach configuration, use
+`delg.python-language.debugpy` as its type.
+
+```json
+{
+  "version": 1,
+  "configurations": [
+    {
+      "name": "Launch Python file",
+      "type": "delg.python-language.debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "debugConsole"
+    },
+    {
+      "name": "Attach to local Python",
+      "type": "delg.python-language.debugpy",
+      "request": "attach",
+      "address": "127.0.0.1",
+      "port": 5678
+    }
+  ]
+}
+```
+
+For attach, start the target with
+`python -m debugpy --listen 127.0.0.1:5678 --wait-for-client app.py`.
+Stopping an attach session detaches from the target. Unloading the plugin
+ends its session and closes any adapter process the IDE started.

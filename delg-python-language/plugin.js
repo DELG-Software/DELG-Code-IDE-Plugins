@@ -63,13 +63,29 @@ async function chooseInterpreter(delg) {
 
 export default function activate(delg) {
   delg.registerCommand('delg.python-language.chooseInterpreter', 'Python: Choose Interpreter', () => chooseInterpreter(delg))
-  return languageServerUi(delg, {
+  const disposeLanguageServer = languageServerUi(delg, {
     prefix: 'delg.python-language',
     name: 'Python',
     spec: serverSpec,
     help: 'Python support runs Pyright on Node.js and downloads it from npm the first time it starts. Install Node.js 18 or newer from nodejs.org if you have not, check your internet connection, then run "Python: Restart Language Server". To change which Python it uses, run "Python: Choose Interpreter".',
     extraActions: [{ label: 'Choose interpreter', run: () => chooseInterpreter(delg) }]
   })
+  let adapter
+  let disposed = false
+  if (typeof delg.debugging?.registerAdapter === 'function') {
+    void delg.debugging.registerAdapter({ id: 'delg.python-language.debugpy', kind: 'debugpy' }).then((registration) => {
+      if (disposed) registration.dispose()
+      else adapter = registration
+    }).catch((error) => {
+      if (!disposed) void Promise.resolve(delg.ui.showWarningMessage('Python debugger unavailable: ' + String(error?.message || error).slice(0, 200))).catch(() => undefined)
+    })
+  }
+  return () => {
+    if (disposed) return
+    disposed = true
+    adapter?.dispose()
+    disposeLanguageServer()
+  }
 }
 
 // --- Shared by the DELG language plugins; keep the copies identical. ---

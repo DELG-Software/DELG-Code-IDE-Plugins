@@ -77,3 +77,21 @@ test('the status menu offers the interpreter picker', async () => {
   await ide.commands.get('delg.python-language.showStatus')()
   assert.deepEqual(ide.lastPick.items.map(({ label }) => label), ['Choose interpreter', 'Restart language server', 'Show setup help'])
 })
+
+test('unloading Python disposes a debug adapter registration that arrives late', async () => {
+  const ide = withWorkspace(fakeIde(), '/app', {})
+  let finishRegistration
+  let disposals = 0
+  ide.delg.debugging = {
+    registerAdapter(declaration) {
+      assert.ok(manifest.capabilities.includes('debugging'))
+      assert.deepEqual(declaration, { id: 'delg.python-language.debugpy', kind: 'debugpy' })
+      return new Promise(resolve => { finishRegistration = resolve })
+    }
+  }
+  const dispose = activate(ide.delg)
+  dispose()
+  finishRegistration({ id: 'delg.python-language.debugpy', dispose: () => { disposals++ } })
+  await settle()
+  assert.equal(disposals, 1)
+})
