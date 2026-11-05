@@ -1,3 +1,3 @@
-# Plugin service fixtures
+# Plugin service test fixture
 
-`mercurial-consumer` depends on the first-party `delg.mercurial` plugin and calls its `delg.mercurial.changes` version 1 service. The response includes counts only, with no resource paths. The integration test activates both plugins against the same service registry and runs Mercurial against a temporary repository.
+`test-support/fake-ide.test.mjs` uses the generic `acme.core.echo` service contract. It covers provider registration, a consumer call, exact contract-version checks, capability enforcement, and disposal.

@@ -19,7 +19,7 @@ jobs:
         env:
           DELG_SOURCE_COMMIT: ${{ github.sha }}
         run: |
-          for plugin in delg-go-language delg-rust-language delg-python-language delg-mercurial; do
+          for plugin in delg-go-language delg-rust-language delg-python-language; do
             (cd "$plugin" && node build.mjs)
           done
       - name: Record archive digests
@@ -31,7 +31,6 @@ jobs:
             'delg-go-language/delg-go-language-0.3.0.delg-plugin',
             'delg-rust-language/delg-rust-language-0.2.0.delg-plugin',
             'delg-python-language/delg-python-language-0.3.0.delg-plugin',
-            'delg-mercurial/delg-mercurial-0.1.0.delg-plugin',
           ]
           const lines = paths.map(path => `${createHash('sha256').update(readFileSync(path)).digest('hex')}  ${path}`)
           writeFileSync('SHA256SUMS', `${lines.join('\n')}\n`)
@@ -44,7 +43,6 @@ jobs:
             delg-go-language/delg-go-language-0.3.0.delg-plugin
             delg-rust-language/delg-rust-language-0.2.0.delg-plugin
             delg-python-language/delg-python-language-0.3.0.delg-plugin
-            delg-mercurial/delg-mercurial-0.1.0.delg-plugin
             SHA256SUMS
           if-no-files-found: error
           retention-days: 7
@@ -64,7 +62,7 @@ jobs:
         env:
           DELG_SOURCE_COMMIT: ${{ github.sha }}
         run: |
-          for plugin in delg-go-language delg-rust-language delg-python-language delg-mercurial; do
+          for plugin in delg-go-language delg-rust-language delg-python-language; do
             (cd "$plugin" && node build.mjs)
           done
       - name: Record archive digests
@@ -76,7 +74,6 @@ jobs:
             'delg-go-language/delg-go-language-0.3.0.delg-plugin',
             'delg-rust-language/delg-rust-language-0.2.0.delg-plugin',
             'delg-python-language/delg-python-language-0.3.0.delg-plugin',
-            'delg-mercurial/delg-mercurial-0.1.0.delg-plugin',
           ]
           const lines = paths.map(path => `${createHash('sha256').update(readFileSync(path)).digest('hex')}  ${path}`)
           writeFileSync('SHA256SUMS', `${lines.join('\n')}\n`)
@@ -89,7 +86,6 @@ jobs:
             delg-go-language/delg-go-language-0.3.0.delg-plugin
             delg-rust-language/delg-rust-language-0.2.0.delg-plugin
             delg-python-language/delg-python-language-0.3.0.delg-plugin
-            delg-mercurial/delg-mercurial-0.1.0.delg-plugin
             SHA256SUMS
           if-no-files-found: error
           retention-days: 7
@@ -115,11 +111,10 @@ jobs:
           path: archives/macos
       - name: Require byte-identical Linux and macOS builds
         run: diff -ru archives/linux archives/macos
-      - name: Attest the four matching archives
+      - name: Attest the three matching archives
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
           subject-path: |
             archives/linux/delg-go-language/delg-go-language-0.3.0.delg-plugin
             archives/linux/delg-rust-language/delg-rust-language-0.2.0.delg-plugin
             archives/linux/delg-python-language/delg-python-language-0.3.0.delg-plugin
-            archives/linux/delg-mercurial/delg-mercurial-0.1.0.delg-plugin
