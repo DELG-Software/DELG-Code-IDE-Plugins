@@ -4,6 +4,7 @@ const MAX_DEPTH = 6
 const SKIPPED_FOLDERS = new Set(['node_modules', '.git', '.delg'])
 let server = null
 let address = ''
+let serverGeneration = 0
 
 function setting(delg, key, fallback) {
   const value = delg.workspace.getConfiguration('delg.live-server.' + key)
@@ -73,18 +74,28 @@ export async function htmlPages(delg) {
 }
 
 async function start(delg, openBrowser) {
-  if (server) await server.stop().catch(() => undefined)
+  const generation = ++serverGeneration
+  const previous = server
   server = null
   address = ''
+  if (previous) {
+    try { await previous.stop() } catch {}
+  }
+  if (generation !== serverGeneration) return
   setStatus(delg, 'starting')
+  let started
   try {
-    const started = await delg.servers.startStatic({
+    started = await delg.servers.startStatic({
       root: String(setting(delg, 'root', '.')),
       index: String(setting(delg, 'index', 'index.html')),
       spaFallback: setting(delg, 'spaFallback', false) === true,
       liveReload: setting(delg, 'liveReload', true) !== false,
       exclude: String(setting(delg, 'exclude', '')).split(',').map((item) => item.trim()).filter(Boolean)
     })
+    if (generation !== serverGeneration) {
+      try { await started.stop() } catch {}
+      return
+    }
     server = started
     address = hostOf(started.url)
     started.onDidChangeStatus((status) => {
@@ -96,11 +107,14 @@ async function start(delg, openBrowser) {
       setStatus(delg, status === 'running' && address ? address : status)
     })
     setStatus(delg, address || 'running')
-    if (openBrowser) await open(delg)
   } catch (error) {
+    if (generation !== serverGeneration) return
     server = null
+    address = ''
     setStatus(delg, 'error: ' + String(error).slice(0, 120))
+    return
   }
+  if (openBrowser && generation === serverGeneration && server === started) await open(delg)
 }
 
 async function open(delg, path) {
@@ -127,11 +141,14 @@ async function openPage(delg) {
 }
 
 async function stop(delg) {
+  const generation = ++serverGeneration
   const current = server
   server = null
   address = ''
-  if (current) await current.stop().catch(() => undefined)
-  setStatus(delg, 'stopped')
+  if (current) {
+    try { await current.stop() } catch {}
+  }
+  if (generation === serverGeneration) setStatus(delg, 'stopped')
 }
 
 async function showUrl(delg) {

@@ -81,7 +81,7 @@ describe('activation', () => {
 describe('manifest schema', () => {
   test('declares the schema-v2 Trusted UI contract', () => {
     assert.equal(manifest.schemaVersion, 2)
-    assert.equal(manifest.engines.delgIde, '>=0.17.2')
+    assert.equal(manifest.engines.delgIde, '>=0.39.0')
     for (const capability of ['commands', 'explorer-icons', 'status', 'status-bar', 'trusted-ui']) {
       assert.ok(manifest.capabilities.includes(capability))
     }

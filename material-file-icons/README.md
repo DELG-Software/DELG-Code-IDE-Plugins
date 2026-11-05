@@ -2,7 +2,7 @@
 
 Source repository: [DELG-Code-IDE-Plugins](https://github.com/DELG-Software/DELG-Code-IDE-Plugins)
 
-A sandboxed schema-v2 Trusted UI plugin for DELG Code IDE 0.17.2 and newer. It registers
+A sandboxed schema-v2 Trusted UI plugin for DELG Code IDE 0.39.0 and newer. It registers
 Material Design SVG Explorer icons for more than 120 file extensions.
 
 ## Features
@@ -28,7 +28,7 @@ Example registrations:
 
 ## Trusted UI runtime
 
-Version 1.4.1 targets `engines.delgIde >=0.17.2`, declares the schema-v2
+Version 1.4.1 targets `engines.delgIde >=0.39.0`, declares the schema-v2
 capabilities it uses, and relies only on documented plugin APIs and manifest
 contributions:
 

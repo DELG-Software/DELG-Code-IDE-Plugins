@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.eslint",
+  "publisherId": "6adaebe83d78d03786e99a1c",
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
+  "name": "DELG ESLint",
+  "description": "Optional JavaScript and TypeScript lint diagnostics from the project's own ESLint installation.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": {
+    "delgIde": ">=0.39.0"
+  },
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "workspaceContains:eslint.config.js",
+    "workspaceContains:eslint.config.mjs",
+    "workspaceContains:eslint.config.cjs",
+    "workspaceContains:eslint.config.ts",
+    "workspaceContains:eslint.config.mts",
+    "workspaceContains:.eslintrc",
+    "workspaceContains:.eslintrc.js",
+    "workspaceContains:.eslintrc.cjs",
+    "workspaceContains:.eslintrc.json",
+    "workspaceContains:.eslintrc.yaml",
+    "workspaceContains:.eslintrc.yml"
+  ],
+  "capabilities": [
+    "commands",
+    "language-servers",
+    "status",
+    "status-bar",
+    "trusted-ui"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "delg.eslint.restart",
+        "title": "ESLint: Restart Language Server"
+      },
+      {
+        "command": "delg.eslint.setupHelp",
+        "title": "ESLint: Show Setup Help"
+      },
+      {
+        "command": "delg.eslint.showStatus",
+        "title": "ESLint: Language Server Status"
+      }
+    ],
+    "languageServers": [
+      {
+        "id": "delg.eslint.language-server",
+        "languages": [
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact"
+        ],
+        "command": "",
+        "entrypoint": "servers/eslint-language-server.mjs",
+        "args": [
+          "--stdio"
+        ],
+        "supplemental": true,
+        "projectMarkers": [
+          "package.json",
+          "eslint.config.js",
+          "eslint.config.mjs",
+          "eslint.config.cjs",
+          "eslint.config.ts",
+          "eslint.config.mts",
+          ".eslintrc",
+          ".eslintrc.js",
+          ".eslintrc.cjs",
+          ".eslintrc.json",
+          ".eslintrc.yaml",
+          ".eslintrc.yml"
+        ],
+        "configuration": {
+          "packageManager": "npm",
+          "nodePath": null,
+          "experimental": {
+            "useFlatConfig": false
+          },
+          "useESLintClass": true,
+          "options": {},
+          "rulesCustomizations": [],
+          "problems": {
+            "shortenToSingleLine": false
+          },
+          "codeAction": {
+            "disableRuleComment": {
+              "enable": false,
+              "location": "separateLine",
+              "commentStyle": "line"
+            },
+            "showDocumentation": {
+              "enable": false
+            }
+          },
+          "format": false,
+          "quiet": false,
+          "onIgnoredFiles": "off",
+          "validate": "on",
+          "run": "onType",
+          "probe": [
+            "javascript",
+            "javascriptreact",
+            "typescript",
+            "typescriptreact"
+          ],
+          "workingDirectory": {
+            "mode": "location"
+          },
+          "codeActionOnSave": {
+            "enable": true,
+            "mode": "all"
+          }
+        }
+      }
+    ]
+  },
+  "source": {
+    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
+    "commit": "266c6a46075a0952b4b64b80e9753e9495417522"
+  }
+}

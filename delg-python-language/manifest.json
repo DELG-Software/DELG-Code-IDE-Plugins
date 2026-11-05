@@ -11,8 +11,15 @@
   "version": "0.2.0",
   "entry": "plugin.js",
   "engines": {
-    "delgIde": ">=0.36.0"
+    "delgIde": ">=0.39.0"
   },
+  "activationEvents": [
+    "onLanguage:python",
+    "workspaceContains:pyproject.toml",
+    "workspaceContains:pyrightconfig.json",
+    "workspaceContains:setup.py",
+    "workspaceContains:requirements.txt"
+  ],
   "capabilities": [
     "commands",
     "language-servers",

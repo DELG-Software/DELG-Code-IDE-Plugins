@@ -11,8 +11,14 @@
   "version": "0.1.0",
   "entry": "plugin.js",
   "engines": {
-    "delgIde": ">=0.36.0"
+    "delgIde": ">=0.39.0"
   },
+  "activationEvents": [
+    "onLanguage:c",
+    "onLanguage:cpp",
+    "workspaceContains:CMakeLists.txt",
+    "workspaceContains:compile_commands.json"
+  ],
   "capabilities": [
     "commands",
     "language-servers",
