@@ -23,12 +23,28 @@ export function serverSpec(delg) {
 }
 
 export default function activate(delg) {
-  return languageServerUi(delg, {
+  const disposeLanguageServer = languageServerUi(delg, {
     prefix: 'delg.rust-language',
     name: 'Rust',
     spec: () => serverSpec(delg),
     help: 'Rust support needs rust-analyzer. Install Rust from rustup.rs, run "rustup component add rust-analyzer", make sure your Cargo bin folder is on PATH, then run "Rust: Restart Language Server".'
   })
+  let adapter
+  let disposed = false
+  if (typeof delg.debugging?.registerAdapter === 'function') {
+    void delg.debugging.registerAdapter({ id: 'delg.rust-language.lldb-dap', kind: 'lldb-dap' }).then((registration) => {
+      if (disposed) registration.dispose()
+      else adapter = registration
+    }).catch((error) => {
+      if (!disposed) void Promise.resolve(delg.ui.showWarningMessage('Rust debugger unavailable: ' + String(error?.message || error).slice(0, 200))).catch(() => undefined)
+    })
+  }
+  return () => {
+    if (disposed) return
+    disposed = true
+    adapter?.dispose()
+    disposeLanguageServer()
+  }
 }
 
 // --- Shared by the DELG language plugins; keep the copies identical. ---

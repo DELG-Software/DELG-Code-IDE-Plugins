@@ -30,3 +30,33 @@ a warning says how to install it.
 
 The plugin does not run processes itself: the IDE owns the server and its LSP
 transport.
+
+## Debugging
+
+Install an LLVM toolchain that includes `lldb-dap` and make that executable
+available on PATH. Build the Rust program first:
+
+```sh
+cargo build
+```
+
+Save a launch configuration in `.delg/launch.json` whose `program` points to
+the Cargo debug executable. For a package named `my_app`, use
+`target/debug/my_app.exe` on Windows or `target/debug/my_app` on macOS/Linux:
+
+```json
+{
+  "version": 1,
+  "configurations": [{
+    "name": "Debug Rust",
+    "type": "delg.rust-language.lldb-dap",
+    "request": "launch",
+    "program": "${workspaceFolder}/target/debug/my_app.exe",
+    "cwd": "${workspaceFolder}"
+  }]
+}
+```
+
+For a local attach, set `request` to `attach` and provide an explicit positive
+`processId`. Stopping or unloading an attach session detaches and leaves the
+external process running.

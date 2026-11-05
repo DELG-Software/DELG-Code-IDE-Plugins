@@ -22,12 +22,28 @@ export function serverSpec(delg) {
 }
 
 export default function activate(delg) {
-  return languageServerUi(delg, {
+  const disposeLanguageServer = languageServerUi(delg, {
     prefix: 'delg.go-language',
     name: 'Go',
     spec: () => serverSpec(delg),
     help: 'Go support needs gopls. Install Go 1.22 or newer, run "go install golang.org/x/tools/gopls@latest", make sure your Go bin folder is on PATH, then run "Go: Restart Language Server".'
   })
+  let adapter
+  let disposed = false
+  if (typeof delg.debugging?.registerAdapter === 'function') {
+    void delg.debugging.registerAdapter({ id: 'delg.go-language.delve', kind: 'delve' }).then((registration) => {
+      if (disposed) registration.dispose()
+      else adapter = registration
+    }).catch((error) => {
+      if (!disposed) void Promise.resolve(delg.ui.showWarningMessage('Go debugger unavailable: ' + String(error?.message || error).slice(0, 200))).catch(() => undefined)
+    })
+  }
+  return () => {
+    if (disposed) return
+    disposed = true
+    adapter?.dispose()
+    disposeLanguageServer()
+  }
 }
 
 // --- Shared by the DELG language plugins; keep the copies identical. ---

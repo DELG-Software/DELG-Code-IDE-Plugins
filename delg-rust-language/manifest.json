@@ -7,8 +7,8 @@
     "description": "Official DELG Plugins"
   },
   "name": "DELG Rust Language",
-  "description": "Optional Rust completion, navigation, diagnostics, inlay hints, rename, and formatting through rust-analyzer.",
-  "version": "0.1.0",
+  "description": "Optional Rust completion, navigation, diagnostics, and formatting through rust-analyzer, with debugging through LLDB DAP.",
+  "version": "0.2.0",
   "entry": "plugin.js",
   "engines": {
     "delgIde": ">=0.39.0"
@@ -20,6 +20,7 @@
   ],
   "capabilities": [
     "commands",
+    "debugging",
     "language-servers",
     "status",
     "status-bar",
