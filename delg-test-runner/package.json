@@ -1,11 +1,12 @@
 {
   "name": "@delg-plugins/delg-test-runner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Project-level managed test runner plugin for DELG Code IDE",
+  "description": "Individual Vitest, pytest and Go tests for DELG Code IDE",
   "scripts": {
     "test": "node --test plugin.test.mjs",
+    "test:integration": "node --test adapters.integration.test.mjs",
     "build": "node build.mjs"
   },
   "engines": {

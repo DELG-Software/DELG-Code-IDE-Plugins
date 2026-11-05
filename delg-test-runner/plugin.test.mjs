@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import activate, { discoverTests } from './plugin.js'
+import activate, { discoverTests, parseDiscovery, parseCaseResult, discoveryTask, caseTask } from './plugin.js'
 import { enforceCapabilities } from '../test-support/fake-ide.mjs'
 
 const root = dirname(fileURLToPath(import.meta.url))
@@ -48,6 +48,7 @@ function fakeIde({ files = {}, folders = {}, withTesting = true, responses = [] 
           disposeCount: 0,
           onDidWrite(listener) {
             this.writes.add(listener)
+            if (response.output) listener({ stream: 'stdout', text: response.output })
             return { dispose: () => this.writes.delete(listener) }
           },
           onDidChangeStatus(listener) {
@@ -155,6 +156,156 @@ test('manifest declares testing and managed-task capabilities and commands', { t
   assert.deepEqual(manifest.contributes.commands.map(({ command }) => command), [
     'delg.test-runner.refresh', 'delg.test-runner.cancel', 'delg.test-runner.setupHelp'
   ])
+})
+
+test('Vitest discovery scopes literal selections to source and rejects duplicates and outside paths', () => {
+  const project = { id: 'web', kind: 'npm', adapter: 'vitest', directory: 'apps/web', label: 'web' }
+  const cases = parseDiscovery(project, 'npm banner\n' + JSON.stringify([
+    { name: 'suite pass [literal].*', file: 'C:/repo/apps/web/a.test.js' },
+    { name: 'suite pass [literal].*', file: 'C:/repo/apps/web/b.test.js' },
+    { name: 'outside', file: 'C:/outside/escape.test.js' }
+  ]), 'C:/repo')
+  assert.equal(cases.length, 2)
+  assert.notEqual(cases[0].id, cases[1].id)
+  const command = caseTask(cases[0])
+  assert.equal(command.kind, 'node')
+  assert.equal(command.args[0], './apps/web/node_modules/vitest/vitest.mjs')
+  assert.ok(command.args.includes('./a.test.js'))
+  assert.ok(command.args.includes('--testNamePattern=^suite pass \\[literal\\]\\.\\*$'))
+  assert.throws(() => parseDiscovery(project, JSON.stringify([{ name: 'same', file: 'a.js' }, { name: 'same', file: 'a.js' }])), /Duplicate/)
+})
+
+test('Go discovery ignores logs and benchmarks and requires a matching terminal case result', () => {
+  const project = { id: 'go', kind: 'go', directory: '', label: 'go' }
+  const output = [
+    { Package: 'sample', Output: 'TestPass\n' },
+    { Package: 'sample', Output: 'BenchmarkPerformance\n' },
+    { Package: 'sample', Output: 'TestName with log text\n' },
+    { Package: 'other', Output: 'TestPass\n' }
+  ].map(value => JSON.stringify(value)).join('\n')
+  const cases = parseDiscovery(project, output)
+  assert.equal(cases.length, 2)
+  assert.notEqual(cases[0].id, cases[1].id)
+  assert.throws(() => parseCaseResult(cases[0], '{"Action":"pass","Package":"other","Test":"TestPass"}', 'completed'), /did not report/)
+  const report = '{"Action":"pass","Package":"sample","Test":"TestPass","Elapsed":0.125}'
+  assert.equal(parseCaseResult(cases[0], report, 'completed').durationMs, 125)
+  assert.equal(parseCaseResult(cases[0], report, 'failed').state, 'errored')
+})
+
+test('pytest preserves parameter identities, source lines and teardown failures', () => {
+  const project = { id: 'py', kind: 'pytest', directory: 'python', label: 'pytest' }
+  const prefix = 'DELG_TEST_RUNNER:'
+  const [entry] = parseDiscovery(project, prefix + JSON.stringify({ event: 'test', nodeid: 'test_values.py::test_value[a.*]', path: 'C:/repo/python/test_values.py', line: 4 }), 'C:/repo')
+  assert.equal(entry.line, 4)
+  assert.ok(caseTask(entry).args.includes('./python/test_values.py::test_value[a.*]'))
+  assert.ok(discoveryTask(project).args.every(arg => arg.length <= 256))
+  const report = [
+    { event: 'result', nodeid: entry.nodeid, phase: 'call', outcome: 'passed', duration: 0.1 },
+    { event: 'result', nodeid: entry.nodeid, phase: 'teardown', outcome: 'failed', duration: 0.2, message: 'fixture cleanup failed' }
+  ].map(value => prefix + JSON.stringify(value)).join('\n')
+  const result = parseCaseResult(entry, report, 'failed')
+  assert.equal(result.state, 'errored')
+  assert.equal(Math.round(result.durationMs), 300)
+  assert.equal(result.message, 'fixture cleanup failed')
+})
+
+test('Vitest requires an exact case report and reports malformed JSON as an error', () => {
+  const test = { individual: true, adapter: 'vitest', path: 'a.test.js', name: 'one' }
+  const report = JSON.stringify({ testResults: [{ name: 'a.test.js', assertionResults: [{ fullName: 'one', status: 'failed', duration: 12, failureMessages: ['expected 2'] }] }] })
+  assert.equal(parseCaseResult(test, '[unrelated log]\n' + report, 'failed').state, 'failed')
+  assert.equal(parseCaseResult(test, report, 'failed').message, 'expected 2')
+  assert.throws(() => parseCaseResult({ ...test, name: 'other' }, report, 'failed'), /exactly one/)
+  assert.throws(() => parseCaseResult(test, '{"testResults":', 'completed'), /complete JSON/)
+})
+
+test('explicit refresh replaces projects with cases and publishes per-case results and durations', async () => {
+  const line = value => JSON.stringify(value) + '\n'
+  const ide = fakeIde({ folders: { '': [{ name: 'go.mod', isDir: false }] }, files: { 'go.mod': 'module sample\n' }, responses: [{ status: 'completed', output: line({ Package: 'sample', Output: 'TestPass\n' }) + line({ Package: 'sample', Output: 'TestFail\n' }) }] })
+  const dispose = activate(ide.delg)
+  await waitFor(() => ide.controller.items.length === 1)
+  await ide.commands.get('delg.test-runner.refresh')()
+  assert.equal(ide.controller.items.length, 2)
+  const [pass, fail] = ide.controller.items
+  const run = ide.controller.requestRun([pass.id, fail.id])
+  await waitFor(() => ide.tasks.length === 2)
+  ide.tasks[1].write(line({ Package: 'sample', Test: 'TestPass', Action: 'pass', Elapsed: 0.025 }))
+  ide.tasks[1].finish('completed')
+  await waitFor(() => ide.tasks.length === 3)
+  ide.tasks[2].write(line({ Package: 'sample', Test: 'TestFail', Action: 'output', Output: 'intentional failure' }) + line({ Package: 'sample', Test: 'TestFail', Action: 'fail', Elapsed: 0.05 }))
+  ide.tasks[2].finish('failed')
+  await run
+  assert.equal(ide.controller.results.get(pass.id).state, 'passed')
+  assert.equal(ide.controller.results.get(pass.id).durationMs, 25)
+  assert.equal(ide.controller.results.get(fail.id).state, 'failed')
+  assert.match(ide.controller.results.get(fail.id).message, /intentional failure/)
+  dispose()
+})
+
+test('cancelling discovery stops its task and preserves the previous list', async () => {
+  const ide = fakeIde({ folders: { '': [{ name: 'go.mod', isDir: false }] } })
+  const dispose = activate(ide.delg)
+  await waitFor(() => ide.controller.items.length === 1)
+  const before = ide.controller.items
+  const refresh = ide.commands.get('delg.test-runner.refresh')()
+  await waitFor(() => ide.tasks.length === 1)
+  await ide.commands.get('delg.test-runner.cancel')()
+  await refresh
+  assert.deepEqual(ide.controller.items, before)
+  assert.equal(ide.tasks[0].stopCount, 1)
+  assert.equal(ide.tasks[0].disposeCount, 1)
+  dispose()
+})
+
+test('discovery failure preserves a runnable project and explains the failure', async () => {
+  const ide = fakeIde({ folders: { '': [{ name: 'go.mod', isDir: false }] }, responses: [{ throw: 'tool not installed' }] })
+  const dispose = activate(ide.delg)
+  await waitFor(() => ide.controller.items.length === 1)
+  await ide.commands.get('delg.test-runner.refresh')()
+  assert.equal(ide.controller.items.length, 1)
+  assert.match(ide.controller.output.join('\n'), /tool not installed/)
+  dispose()
+})
+
+test('a run requested immediately from the final result is queued instead of lost', async () => {
+  const ide = fakeIde({ folders: { '': [{ name: 'go.mod', isDir: false }] } })
+  const dispose = activate(ide.delg)
+  await waitFor(() => ide.controller.items.length === 1)
+  const id = ide.controller.items[0].id
+  const original = ide.controller.setResult
+  let second, restarted = false
+  ide.controller.setResult = async (testId, result) => {
+    await original(testId, result)
+    if (result.state === 'passed' && !restarted) { restarted = true; second = ide.controller.requestRun([id]) }
+  }
+  const first = ide.controller.requestRun([id])
+  await waitFor(() => ide.tasks.length === 1)
+  ide.tasks[0].finish('completed')
+  await waitFor(() => ide.tasks.length === 2)
+  ide.tasks[1].finish('completed')
+  await first
+  await second
+  assert.equal(ide.controller.results.get(id).state, 'passed')
+  dispose()
+})
+
+test('disposal cancels a discovery task whose handle arrives late', async () => {
+  const ide = fakeIde({ folders: { '': [{ name: 'go.mod', isDir: false }] } })
+  const dispose = activate(ide.delg)
+  await waitFor(() => ide.controller.items.length === 1)
+  let release
+  const start = ide.delg.tasks.start
+  ide.delg.tasks.start = async options => {
+    const handle = await start(options)
+    await new Promise(resolve => { release = resolve })
+    return handle
+  }
+  const refresh = ide.commands.get('delg.test-runner.refresh')()
+  await waitFor(() => typeof release === 'function')
+  dispose()
+  release()
+  await refresh
+  assert.equal(ide.tasks[0].stopCount, 1)
+  assert.equal(ide.tasks[0].disposeCount, 1)
 })
 
 test('discovers bounded project-level npm, Go, and pytest targets with safe IDs', { timeout: 5000 }, async () => {

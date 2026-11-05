@@ -15,7 +15,7 @@ First-party plugins built against the current DELG IDE plugin contract.
 | [DELG Config Files](./delg-config-language/) | YAML, JSON and TOML checking, completion and formatting, with SchemaStore schemas. | Trusted UI |
 | [DELG Prettier](./delg-prettier/) | Prettier formatting through sandboxed editor providers. | Requires Trusted UI |
 | [DELG ESLint](./delg-eslint/) | Project ESLint diagnostics and code fixes. | Requires Trusted UI |
-| [DELG Test Runner](./delg-test-runner/) | Project-level npm, Go, and pytest runs with aggregate results. | Requires Verified and a testing-controller engine build |
+| [DELG Test Runner](./delg-test-runner/) | Individual Vitest, pytest and Go cases, selected runs, durations and failure output; npm script fallback. | Requires Verified and a testing-controller engine build |
 
 Published plugin folders contain their manifest, runtime entry point, build
 script, documentation, and versioned `.delg-plugin` archive. The Test Runner is
