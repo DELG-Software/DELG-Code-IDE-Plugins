@@ -21,7 +21,9 @@ export const REQUIRED_CAPABILITIES = {
   'servers.startStatic': 'local-static-server',
   'tasks.start': 'managed-tasks',
   'testing.createController': 'testing',
+  'sourceControl.createProvider': 'source-control',
   'editor.getActiveDocument': 'editor-read',
+  'ui.openFile': 'editor-open',
   'ui.openExternal': 'open-external',
   'ui.showInformationMessage': 'status',
   'ui.showWarningMessage': 'status',
@@ -78,7 +80,7 @@ function disposable(fn) {
 export function fakeIde(settings = {}, { manifest, root = '', folders = {} } = {}) {
   const ide = {
     commands: new Map(), statusBar: new Map(), warnings: [], infos: [], registered: [], disposed: 0,
-    configListeners: [], picks: [], settings: { ...settings }, servers: [], root, folders
+    configListeners: [], picks: [], settings: { ...settings }, servers: [], providers: [], taskStarts: [], openedFiles: [], root, folders
   }
   ide.delg = {
     registerCommand: (id, _title, run) => {
@@ -96,6 +98,7 @@ export function fakeIde(settings = {}, { manifest, root = '', folders = {} } = {
         item.text = text
       },
       showWarningMessage: async (text) => { ide.warnings.push(text) },
+      openFile: async (path) => { ide.openedFiles.push(path) },
       showInformationMessage: async (text) => { ide.infos.push(text) },
       setStatus: async () => {},
       showQuickPick: async (items, options) => { ide.lastPick = { items, options }; return ide.picks.shift() },
@@ -128,6 +131,55 @@ export function fakeIde(settings = {}, { manifest, root = '', folders = {} } = {
         ide.servers.push(server)
         return server
       }
+    },
+    sourceControl: {
+      createProvider: async ({ id, label, groups = [] }) => {
+        let snapshotId = 'r0:0'
+        let disposed = false
+        const refreshListeners = new Set()
+        const actionListeners = new Set()
+        const provider = {
+          id,
+          label,
+          groups,
+          error: '',
+          refreshListeners,
+          actionListeners,
+          get snapshotId() { return snapshotId },
+          refresh: async () => { await provider.requestRefresh() },
+          setGroups: async (next, expected = snapshotId) => {
+            if (disposed) throw new Error('source-control provider is no longer active')
+            if (expected !== snapshotId) throw new Error('source-control provider snapshot is stale')
+            provider.groups = next
+            provider.error = ''
+            snapshotId = `r0:${Number(snapshotId.slice(3)) + 1}`
+          },
+          setError: async (message, expected = snapshotId) => {
+            if (disposed) throw new Error('source-control provider is no longer active')
+            if (expected !== snapshotId) throw new Error('source-control provider snapshot is stale')
+            provider.error = message || ''
+          },
+          onDidRequestRefresh: (listener) => { refreshListeners.add(listener); return disposable(() => refreshListeners.delete(listener)) },
+          onDidRunAction: (listener) => { actionListeners.add(listener); return disposable(() => actionListeners.delete(listener)) },
+          requestRefresh: async () => { await Promise.all([...refreshListeners].map(listener => listener({ providerId: id, snapshotId }))) },
+          runAction: async (event) => {
+            const group = provider.groups.find(item => item.id === event.groupId)
+            const resource = group?.resources.find(item => item.id === event.resourceId)
+            const action = resource?.actions?.find(item => item.id === event.actionId)
+            if (!group || !resource || !action) return
+            await Promise.all([...actionListeners].map(listener => listener({ providerId: id, snapshotId, path: resource.path, kind: group.kind, ...event })))
+          },
+          dispose() { disposed = true; refreshListeners.clear(); actionListeners.clear() }
+        }
+        ide.providers.push(provider)
+        return provider
+      }
+    }
+  }
+  ide.delg.tasks = {
+    start: async (options) => {
+      ide.taskStarts.push(options)
+      throw new Error('managed task runner is not configured')
     }
   }
   if (manifest) enforceCapabilities(ide.delg, manifest)
