@@ -5,11 +5,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
 import test from 'node:test'
+import activateConsumer from '../examples/plugin-services/mercurial-consumer/plugin.js'
 import { fakeIde, loadManifest } from '../test-support/fake-ide.mjs'
 import activate, { changeSummary, parseHgStatus } from './plugin.js'
 
 const execFileAsync = promisify(execFile)
 const manifest = loadManifest(import.meta.url)
+const consumerManifest = loadManifest(new URL('../examples/plugin-services/mercurial-consumer/plugin.js', import.meta.url))
 const disposable = fn => ({ dispose: fn })
 
 test('activates from Mercurial repositories through the .hg/requires file marker', () => {
@@ -169,6 +171,16 @@ test('runs native hg status, refreshes the host snapshot, and routes Open to its
     untracked: ['untracked file.txt']
   })
 
+  const consumer = fakeIde({}, { manifest: consumerManifest, root, services: ide.serviceRegistry })
+  const summary = await activateConsumer(consumer.delg)
+  assert.deepEqual(summary, {
+    contract: 'delg.mercurial.changes',
+    version: 1,
+    counts: { modified: 1, added: 1, removed: 1, untracked: 1, total: 4 }
+  })
+  assert.equal(JSON.stringify(summary).includes('file.txt'), false)
+  assert.deepEqual(consumer.serviceCalls, [{ id: 'delg.mercurial.changes', contractVersion: 1, request: {} }])
+
   await writeFile(join(root, 'after refresh file.txt'), 'new change\n')
   await provider.requestRefresh()
   assert.ok(provider.groups.find(group => group.kind === 'untracked').resources.some(resource => resource.path === 'after refresh file.txt'))
@@ -178,6 +190,7 @@ test('runs native hg status, refreshes the host snapshot, and routes Open to its
   await deactivate()
   assert.equal(provider.refreshListeners.size, 0)
   assert.equal(provider.actionListeners.size, 0)
+  assert.equal(ide.serviceRegistry.has('delg.mercurial.changes'), false)
 })
 
 function realHgTask(root, args) {

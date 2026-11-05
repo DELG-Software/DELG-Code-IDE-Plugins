@@ -17,4 +17,14 @@ provider shows the reason and remains available so you can retry after fixing
 the environment.
 
 The plugin requires an IDE build that implements `delg.sourceControl.createProvider`
-and the native `hg` managed-task kind.
+and the native `hg` managed-task kind. It also provides the `plugin-services`
+capability for integrations that need a compact status summary.
+
+## Plugin service
+
+The namespaced service `delg.mercurial.changes` uses contract version `1`.
+Consumers must declare `delg.mercurial` in `dependencies` or
+`optionalDependencies` and use `delg.services.call('delg.mercurial.changes', 1,
+{})`. The response is `{ contract, version, counts }`, where `counts` has
+`modified`, `added`, `removed`, `untracked`, and `total` integer fields. It
+contains no file paths and reflects the latest groups published by this plugin.

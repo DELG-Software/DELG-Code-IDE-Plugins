@@ -22,6 +22,8 @@ export const REQUIRED_CAPABILITIES = {
   'tasks.start': 'managed-tasks',
   'testing.createController': 'testing',
   'sourceControl.createProvider': 'source-control',
+  'services.register': 'plugin-services',
+  'services.call': 'plugin-services',
   'editor.getActiveDocument': 'editor-read',
   'ui.openFile': 'editor-open',
   'ui.openExternal': 'open-external',
@@ -77,10 +79,10 @@ function disposable(fn) {
 // manifest (loadManifest(import.meta.url)) to enforce its capabilities, a
 // workspace root, and folders: a map from a workspace-relative path to the
 // directory entries ({ name, isDir }) listFiles returns for it.
-export function fakeIde(settings = {}, { manifest, root = '', folders = {} } = {}) {
+export function fakeIde(settings = {}, { manifest, root = '', folders = {}, services = new Map() } = {}) {
   const ide = {
     commands: new Map(), statusBar: new Map(), warnings: [], infos: [], registered: [], disposed: 0,
-    configListeners: [], picks: [], settings: { ...settings }, servers: [], providers: [], taskStarts: [], openedFiles: [], root, folders
+    configListeners: [], picks: [], settings: { ...settings }, servers: [], providers: [], taskStarts: [], openedFiles: [], root, folders, serviceRegistry: services, serviceCalls: []
   }
   ide.delg = {
     registerCommand: (id, _title, run) => {
@@ -180,6 +182,23 @@ export function fakeIde(settings = {}, { manifest, root = '', folders = {} } = {
     start: async (options) => {
       ide.taskStarts.push(options)
       throw new Error('managed task runner is not configured')
+    }
+  }
+  ide.delg.services = {
+    register: async (id, contractVersion, handler) => {
+      if (typeof handler !== 'function') throw new Error('service handler must be a function')
+      const registration = { contractVersion, handler }
+      ide.serviceRegistry.set(id, registration)
+      return disposable(() => { if (ide.serviceRegistry.get(id) === registration) ide.serviceRegistry.delete(id) })
+    },
+    call: async (id, contractVersion, request, options = {}) => {
+      ide.serviceCalls.push({ id, contractVersion, request })
+      const registration = ide.serviceRegistry.get(id)
+      if (!registration) throw new Error('plugin service is not registered')
+      if (registration.contractVersion !== contractVersion) throw new Error(`plugin service requires contract version ${registration.contractVersion}`)
+      const signal = options.signal || new AbortController().signal
+      if (signal.aborted) throw new DOMException('The operation was aborted', 'AbortError')
+      return registration.handler(request, { signal })
     }
   }
   if (manifest) enforceCapabilities(ide.delg, manifest)
