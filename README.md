@@ -12,7 +12,6 @@ First-party plugins built against the current DELG IDE plugin contract.
 | [DELG Python Language](./delg-python-language/) | Optional Python intelligence through a packaged Pyright entrypoint and project environments. | Trusted UI |
 | [DELG Rust Language](./delg-rust-language/) | Optional Rust intelligence through the installed `rust-analyzer`. | Trusted UI |
 | [DELG C/C++ Language](./delg-cpp-language/) | Optional C and C++ intelligence through the installed `clangd`. | Trusted UI |
-| [DELG Mercurial](./delg-mercurial/) | Read-only Mercurial working-copy status in Source Control. | Trusted UI |
 | [DELG Config Files](./delg-config-language/) | YAML, JSON and TOML checking, completion and formatting, with SchemaStore schemas. | Trusted UI |
 | [DELG Prettier](./delg-prettier/) | Prettier formatting through sandboxed editor providers. | Requires Trusted UI |
 | [DELG ESLint](./delg-eslint/) | Project ESLint diagnostics and code fixes. | Requires Trusted UI |
