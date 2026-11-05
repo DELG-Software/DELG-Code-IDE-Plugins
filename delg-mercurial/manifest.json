@@ -19,6 +19,7 @@
   "capabilities": [
     "editor-open",
     "managed-tasks",
+    "plugin-services",
     "source-control",
     "status"
   ],

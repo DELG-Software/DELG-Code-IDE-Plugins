@@ -125,13 +125,20 @@ function messageOf(error) {
 }
 
 export default async function activate(delg) {
-  if (typeof delg.sourceControl?.createProvider !== 'function' || typeof delg.tasks?.start !== 'function') {
-    await delg.ui?.showWarningMessage?.('Mercurial support requires the DELG Code IDE source-control provider and managed-task APIs. Update the IDE and reload plugins.')
+  if (typeof delg.sourceControl?.createProvider !== 'function' || typeof delg.tasks?.start !== 'function' || typeof delg.services?.register !== 'function') {
+    await delg.ui?.showWarningMessage?.('Mercurial support requires the DELG Code IDE source-control, managed-task, and plugin-service APIs. Update the IDE and reload plugins.')
     return
   }
 
   const activation = { active: true, groups: [], snapshotId: '', refreshEpoch: 0, refreshes: new Set() }
   const provider = await delg.sourceControl.createProvider({ id: PROVIDER_ID, label: 'Mercurial' })
+  let serviceRegistration
+  try {
+    serviceRegistration = await delg.services.register(PROVIDER_ID, 1, () => changeSummary(activation.groups))
+  } catch (error) {
+    provider.dispose()
+    throw error
+  }
   activation.snapshotId = provider.snapshotId
   const refresh = async (snapshotId = provider.snapshotId) => {
     if (!activation.active) return
@@ -178,6 +185,7 @@ export default async function activate(delg) {
     activation.refreshes.clear()
     refreshSubscription.dispose()
     actionSubscription.dispose()
+    serviceRegistration.dispose()
     provider.dispose()
   }
 }
