@@ -7,8 +7,8 @@
     "description": "Official DELG Plugins"
   },
   "name": "DELG Python Language",
-  "description": "Optional Python intelligence through Pyright with interpreter and virtual-environment discovery.",
-  "version": "0.2.0",
+  "description": "Python intelligence through Pyright and debugging through debugpy.",
+  "version": "0.3.0",
   "entry": "plugin.js",
   "engines": {
     "delgIde": ">=0.39.0"
@@ -22,6 +22,7 @@
   ],
   "capabilities": [
     "commands",
+    "debugging",
     "language-servers",
     "status",
     "status-bar",
