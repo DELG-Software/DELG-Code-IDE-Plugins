@@ -4,7 +4,11 @@ import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import activate, { serverSpec } from './plugin.js'
-import { fakeIde } from '../test-support/fake-ide.mjs'
+import { fakeIde as baseFakeIde, loadManifest } from '../test-support/fake-ide.mjs'
+
+// The fake enforces the capabilities this plugin's manifest declares.
+const manifest = loadManifest(import.meta.url)
+const fakeIde = (settings, options) => baseFakeIde(settings, { manifest, ...options })
 
 const root = dirname(fileURLToPath(import.meta.url))
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
@@ -44,8 +48,14 @@ test('the status bar follows the server and setup help shows once per failure', 
   server.emit('running')
   server.emit('error')
   assert.equal(ide.warnings.length, 2)
+  server.emit('stopping')
+  assert.equal(item.text, 'Go: stopping…')
+  server.emit('stopped')
+  assert.equal(item.text, 'Go')
   server.emit('inactive')
-  assert.equal(item.text, '')
+  assert.equal(item.text, 'Go: inactive')
+  server.emit('running')
+  assert.equal(item.text, 'Go')
 })
 
 test('restart and a settings change register the server again', async () => {

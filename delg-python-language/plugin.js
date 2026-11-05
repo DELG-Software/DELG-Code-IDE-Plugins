@@ -25,7 +25,7 @@ function join(root, ...parts) {
 // projectInterpreters finds virtual environments at the top of the workspace:
 // <folder>/Scripts/python.exe on Windows, <folder>/bin/python elsewhere.
 export async function projectInterpreters(delg) {
-  const root = String((await delg.workspace.getRoot()) || '')
+  const root = String(delg.workspace.root || '')
   if (!root) return []
   const top = await delg.workspace.listFiles('').catch(() => [])
   const found = []
@@ -81,7 +81,15 @@ export default function activate(delg) {
 // the change applies. extraActions adds entries to the Status menu.
 export function languageServerUi(delg, { prefix, name, spec, help, extraActions = [] }) {
   const statusId = prefix + '.status'
-  const labels = { stopped: name, starting: name + ': starting…', running: name, error: name + ': not running', paused: name + ': not running' }
+  const labels = {
+    inactive: name + ': inactive',
+    starting: name + ': starting…',
+    running: name,
+    stopping: name + ': stopping…',
+    stopped: name,
+    error: name + ': not running',
+    paused: name + ': not running'
+  }
   const quiet = (promise) => { Promise.resolve(promise).catch(() => undefined) }
   let server = null
   let warned = false

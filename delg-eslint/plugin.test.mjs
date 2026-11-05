@@ -1,7 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import activate, { serverSpec } from './plugin.js'
-import { fakeIde } from '../test-support/fake-ide.mjs'
+import { fakeIde as baseFakeIde, loadManifest } from '../test-support/fake-ide.mjs'
+
+// The fake enforces the capabilities this plugin's manifest declares.
+const manifest = loadManifest(import.meta.url)
+const fakeIde = (settings, options) => baseFakeIde(settings, { manifest, root: 'C:\\workspace', ...options })
+const settle = () => new Promise((resolve) => setImmediate(resolve))
 
 test('declares the supplemental ESLint server for JavaScript and TypeScript', () => {
   assert.deepEqual(serverSpec().languages, ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'])
@@ -17,50 +22,53 @@ test('declares the supplemental ESLint server for JavaScript and TypeScript', ()
 })
 
 test('registers restart, setup help, status, and server lifecycle', async () => {
-  const commands = new Map()
-  const uiCalls = []
-  const configListeners = []
-  let registration
-  const delg = {
-    registerCommand(id, _title, handler) { commands.set(id, handler) },
-    languageServers: {
-      async register(spec) {
-        registration = spec
-        return {
-          status: 'running',
-          onDidChangeStatus(handler) { this.statusHandler = handler },
-          dispose() { uiCalls.push('dispose') }
-        }
-      }
-    },
-    workspace: {
-      async getRoot() { return 'C:\\workspace' },
-      onDidChangeConfiguration(handler) { configListeners.push(handler) }
-    },
-    ui: {
-      createStatusBarItem(...args) { uiCalls.push(['create', ...args]) },
-      updateStatusBarItem(...args) { uiCalls.push(['update', ...args]) },
-      showWarningMessage(message) { uiCalls.push(['warning', message]) },
-      showInformationMessage(message) { uiCalls.push(['info', message]) },
-      setStatus(message) { uiCalls.push(['status', message]) },
-      async showQuickPick(items) { return items[0] }
-    }
-  }
+  const ide = fakeIde()
+  const dispose = activate(ide.delg)
+  await settle()
+  assert.equal(ide.registered.length, 1)
+  assert.equal(ide.registered[0].id, serverSpec().id)
+  assert.equal(ide.registered[0].configuration.workspaceFolder.name, 'workspace')
+  for (const command of ['restart', 'setupHelp', 'showStatus']) assert.ok(ide.commands.has('delg.eslint.' + command))
+  assert.equal(ide.statusBar.get('delg.eslint.status').command, 'delg.eslint.showStatus')
 
-  const dispose = activate(delg)
-  await new Promise((resolve) => setImmediate(resolve))
-  assert.equal(registration.id, serverSpec().id)
-  assert.ok(commands.has('delg.eslint.restart'))
-  assert.ok(commands.has('delg.eslint.setupHelp'))
-  assert.ok(commands.has('delg.eslint.showStatus'))
-  assert.ok(uiCalls.some(([kind, id]) => kind === 'create' && id === 'delg.eslint.status'))
-
-  configListeners[0]('delg.eslint.someSetting')
-  await new Promise((resolve) => setImmediate(resolve))
-  assert.equal(uiCalls.filter((call) => Array.isArray(call) && call[0] === 'update').length, 2)
+  await ide.delg.workspace.updateConfiguration('delg.eslint.someSetting', true)
+  await settle()
+  assert.equal(ide.registered.length, 2)
 
   dispose()
-  assert.ok(uiCalls.includes('dispose'))
+  assert.equal(ide.disposed, 2)
+})
+
+test('the status bar labels every language server status', async () => {
+  const ide = fakeIde()
+  activate(ide.delg)
+  await settle()
+  const item = ide.statusBar.get('delg.eslint.status')
+  const expected = {
+    inactive: 'ESLint: inactive',
+    starting: 'ESLint: starting…',
+    running: 'ESLint',
+    stopping: 'ESLint: stopping…',
+    stopped: 'ESLint',
+    error: 'ESLint: not running',
+    paused: 'ESLint: not running'
+  }
+  for (const [status, text] of Object.entries(expected)) {
+    ide.servers[0].emit(status)
+    assert.equal(item.text, text, status)
+  }
+  assert.equal(ide.warnings.length, 1)
+})
+
+test('the plugin only uses capabilities its manifest declares', async () => {
+  const ide = fakeIde({}, { manifest: { ...manifest, capabilities: manifest.capabilities.filter((name) => name !== 'language-servers') } })
+  activate(ide.delg)
+  await settle()
+  assert.equal(ide.registered.length, 0)
+  assert.equal(ide.warnings.length, 1)
+
+  // The host rejects getRoot without workspace-read; the plugin must not need it.
+  await assert.rejects(fakeIde().delg.workspace.getRoot(), /workspace-read capability is required/)
 })
 
 test('a failed lifecycle operation does not block later restarts', async () => {

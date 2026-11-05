@@ -4,7 +4,11 @@ import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import activate, { serverSpec } from './plugin.js'
-import { fakeIde } from '../test-support/fake-ide.mjs'
+import { fakeIde as baseFakeIde, loadManifest } from '../test-support/fake-ide.mjs'
+
+// The fake enforces the capabilities this plugin's manifest declares.
+const manifest = loadManifest(import.meta.url)
+const fakeIde = (settings, options) => baseFakeIde(settings, { manifest, ...options })
 
 const root = dirname(fileURLToPath(import.meta.url))
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))

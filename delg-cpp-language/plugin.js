@@ -38,7 +38,15 @@ export default function activate(delg) {
 // the change applies. extraActions adds entries to the Status menu.
 export function languageServerUi(delg, { prefix, name, spec, help, extraActions = [] }) {
   const statusId = prefix + '.status'
-  const labels = { stopped: name, starting: name + ': starting…', running: name, error: name + ': not running', paused: name + ': not running' }
+  const labels = {
+    inactive: name + ': inactive',
+    starting: name + ': starting…',
+    running: name,
+    stopping: name + ': stopping…',
+    stopped: name,
+    error: name + ': not running',
+    paused: name + ': not running'
+  }
   const quiet = (promise) => { Promise.resolve(promise).catch(() => undefined) }
   let server = null
   let warned = false

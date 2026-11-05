@@ -111,7 +111,9 @@ export default function activate(delg) {
     }
   }
   let queue = Promise.resolve()
-  const restart = () => (queue = queue.then(register))
+  // Recover the serialized queue after an unexpected failure so a later
+  // restart or settings change can try again.
+  const restart = () => (queue = queue.catch(() => undefined).then(register).catch(() => failed('error')))
 
   delg.registerCommand('delg.config-language.restart', 'Config Files: Restart Language Servers', () => restart())
   delg.registerCommand('delg.config-language.setupHelp', 'Config Files: Show Setup Help', () => quiet(delg.ui.showInformationMessage(HELP)))

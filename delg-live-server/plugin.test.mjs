@@ -1,8 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { enforceCapabilities } from '../test-support/fake-ide.mjs'
 
 const root = dirname(fileURLToPath(import.meta.url))
 
@@ -11,7 +13,8 @@ test('manifest declares the sandboxed live-server contract', async () => {
   assert.equal(manifest.schemaVersion, 2)
   assert.equal(manifest.id, 'delg.live-server')
   assert.ok(manifest.capabilities.includes('local-static-server'))
-  assert.ok(manifest.capabilities.includes('workspace-watch'))
+  // Unused: live reload is done by the server, and pages are listed with listFiles.
+  for (const unused of ['workspace-read', 'workspace-watch']) assert.ok(!manifest.capabilities.includes(unused))
   assert.ok(!manifest.capabilities.includes('full-host'))
   assert.deepEqual(manifest.images, ['media/files-in-root.png', 'media/command-palette.png'])
 })
@@ -32,7 +35,7 @@ test('plugin exposes the server commands', async () => {
   }
 })
 
-const { default: activate, hostOf, servedPath, htmlPages } = await import('./plugin.js')
+const { default: activate, hostOf, servedPath, htmlPages, withoutToken } = await import('./plugin.js')
 
 function fakeIde(files = {}, settings = {}) {
   const ide = { commands: new Map(), bar: {}, opened: [], infos: [], picks: [], started: 0, stopped: 0 }
@@ -64,6 +67,8 @@ function fakeIde(files = {}, settings = {}) {
       }
     }
   }
+  // Reject calls the manifest's capabilities do not allow, like the host.
+  enforceCapabilities(ide.delg, JSON.parse(readFileSync(join(root, 'manifest.json'), 'utf8')))
   return ide
 }
 
@@ -144,6 +149,21 @@ test('overlapping starts stop stale servers and stop cancels startup', async () 
   assert.equal(ide.bar.text, 'Live Server: stopped')
   await ide.commands.get('delg.live-server.showUrl')()
   assert.equal(ide.infos.at(-1), 'Live Server is not running.')
+})
+
+test('the shown address does not include the access token', async () => {
+  const ide = fakeIde()
+  activate(ide.delg)
+  ide.delg.servers.startStatic = async () => ({
+    url: 'http://127.0.0.1:53123/?__delg_token=secret123',
+    urlFor: async (path) => 'http://127.0.0.1:53123' + path,
+    stop: async () => {},
+    onDidChangeStatus: () => () => {}
+  })
+  await ide.commands.get('delg.live-server.start')()
+  await ide.commands.get('delg.live-server.showUrl')()
+  assert.deepEqual(ide.infos, ['Live Server is serving at http://127.0.0.1:53123/'])
+  assert.equal(withoutToken('http://127.0.0.1:1/a?x=1&__delg_token=t'), 'http://127.0.0.1:1/a?x=1')
 })
 
 test('paths and addresses', () => {

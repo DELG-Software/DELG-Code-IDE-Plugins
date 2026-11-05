@@ -28,9 +28,7 @@
   ],
   "capabilities": [
     "commands",
-    "workspace-read",
     "workspace-list",
-    "workspace-watch",
     "editor-read",
     "local-static-server",
     "open-external",

@@ -66,11 +66,13 @@ export default function activate(delg) {
   const help = 'ESLint support runs on Node.js 18 or newer and uses the ESLint package installed in your project. Install ESLint in the workspace (for example, npm install --save-dev eslint@9), add an ESLint config, and run "ESLint: Restart Language Server". ESLint 10 is not supported by this bundled server.'
   const statusId = prefix + '.status'
   const labels = {
+    inactive: name + ': inactive',
     starting: name + ': starting…',
     running: name,
     stopping: name + ': stopping…',
-    stopped: name + ': not running',
-    error: name + ': not running'
+    stopped: name,
+    error: name + ': not running',
+    paused: name + ': not running'
   }
   const quiet = (promise) => { Promise.resolve(promise).catch(() => undefined) }
   let server = null
@@ -80,7 +82,7 @@ export default function activate(delg) {
 
   const show = (status) => {
     quiet(delg.ui.updateStatusBarItem(statusId, labels[status] || ''))
-    if (status === 'error' && !warned) {
+    if ((status === 'error' || status === 'paused') && !warned) {
       warned = true
       quiet(delg.ui.showWarningMessage(help))
     }
@@ -94,7 +96,7 @@ export default function activate(delg) {
     if (server) server.dispose()
     server = null
     try {
-      const root = String((await delg.workspace.getRoot()) || '')
+      const root = String(delg.workspace.root || '')
       const registered = await delg.languageServers.register(serverSpec(root))
       if (disposed) return registered.dispose()
       server = registered

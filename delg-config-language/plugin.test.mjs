@@ -4,7 +4,11 @@ import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import activate, { JSON_SCHEMAS, serverSpecs } from './plugin.js'
-import { fakeIde } from '../test-support/fake-ide.mjs'
+import { fakeIde as baseFakeIde, loadManifest } from '../test-support/fake-ide.mjs'
+
+// The fake enforces the capabilities this plugin's manifest declares.
+const manifest = loadManifest(import.meta.url)
+const fakeIde = (settings, options) => baseFakeIde(settings, { manifest, ...options })
 
 const root = dirname(fileURLToPath(import.meta.url))
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
@@ -68,4 +72,28 @@ test('the commands restart the servers and show the help', async () => {
   assert.equal(ide.infos.length, 1)
   dispose()
   assert.equal(ide.disposed, 6)
+})
+
+test('a failed restart does not block later restarts', async () => {
+  const ide = fakeIde()
+  activate(ide.delg)
+  await settle()
+  assert.equal(ide.registered.length, 3)
+
+  // The first disposal throws outside the guarded registration block.
+  let failOnce = true
+  const dispose = ide.servers[0].dispose
+  ide.servers[0].dispose = () => {
+    if (failOnce) {
+      failOnce = false
+      throw new Error('temporary dispose failure')
+    }
+    return dispose()
+  }
+  await ide.commands.get('delg.config-language.restart')()
+  assert.equal(ide.registered.length, 3)
+  assert.equal(ide.warnings.length, 1)
+
+  await ide.commands.get('delg.config-language.restart')()
+  assert.equal(ide.registered.length, 6)
 })

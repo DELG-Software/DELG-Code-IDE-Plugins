@@ -16,7 +16,11 @@
   "activationEvents": [
     "onCommand:delg.test-runner.refresh",
     "onCommand:delg.test-runner.cancel",
-    "onCommand:delg.test-runner.setupHelp"
+    "onCommand:delg.test-runner.setupHelp",
+    "workspaceContains:package.json",
+    "workspaceContains:go.mod",
+    "workspaceContains:pytest.ini",
+    "workspaceContains:pyproject.toml"
   ],
   "capabilities": [
     "commands",
