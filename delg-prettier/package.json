@@ -1,0 +1,22 @@
+{
+  "name": "@delg-plugins/delg-prettier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Prettier formatting for DELG Code IDE",
+  "engines": {
+    "node": ">=18",
+    "delgIde": ">=0.39.0"
+  },
+  "scripts": {
+    "test": "node --test plugin.test.mjs",
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "prettier": "3.9.10"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "fflate": "0.8.3"
+  }
+}

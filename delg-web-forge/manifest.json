@@ -15,8 +15,18 @@
     "media/overview.png"
   ],
   "engines": {
-    "delgIde": ">=0.36.0"
+    "delgIde": ">=0.39.0"
   },
+  "activationEvents": [
+    "onLanguage:html",
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:less",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onCommand:delg.web-forge.about",
+    "onCommand:delg.web-forge.editCustomSnippets"
+  ],
   "capabilities": [
     "commands",
     "editor-completions",

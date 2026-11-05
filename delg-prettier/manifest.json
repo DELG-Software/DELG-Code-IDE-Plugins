@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.prettier",
+  "publisherId": "6adaebe83d78d03786e99a1c",
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
+  "name": "DELG Prettier",
+  "description": "Prettier formatting for JavaScript, TypeScript, JSON, HTML, CSS, YAML, Markdown, Vue and GraphQL files.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": {
+    "delgIde": ">=0.39.0"
+  },
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:json",
+    "onLanguage:jsonc",
+    "onLanguage:html",
+    "onLanguage:vue",
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:less",
+    "onLanguage:yaml",
+    "onLanguage:markdown",
+    "onLanguage:graphql",
+    "onLanguage:plaintext"
+  ],
+  "capabilities": [
+    "editor-language-features",
+    "status",
+    "workspace-read",
+    "trusted-ui"
+  ],
+  "source": {
+    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
+    "commit": "266c6a46075a0952b4b64b80e9753e9495417522"
+  }
+}

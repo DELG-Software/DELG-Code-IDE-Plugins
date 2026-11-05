@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 2,
+  "id": "delg.test-runner",
+  "publisherId": "6adaebe83d78d03786e99a1c",
+  "publisher": {
+    "displayName": "DELG",
+    "description": "Official DELG Plugins"
+  },
+  "name": "DELG Test Runner",
+  "description": "Discover and run project-level npm, Go, and pytest targets from the testing panel.",
+  "version": "0.1.0",
+  "entry": "plugin.js",
+  "engines": {
+    "delgIde": ">=0.39.0"
+  },
+  "activationEvents": [
+    "onCommand:delg.test-runner.refresh",
+    "onCommand:delg.test-runner.cancel",
+    "onCommand:delg.test-runner.setupHelp"
+  ],
+  "capabilities": [
+    "commands",
+    "managed-tasks",
+    "status",
+    "testing",
+    "workspace-list",
+    "workspace-read"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "delg.test-runner.refresh",
+        "title": "Test Runner: Refresh Projects"
+      },
+      {
+        "command": "delg.test-runner.cancel",
+        "title": "Test Runner: Cancel Test Run"
+      },
+      {
+        "command": "delg.test-runner.setupHelp",
+        "title": "Test Runner: Show Setup Help"
+      }
+    ]
+  },
+  "source": {
+    "repository": "https://github.com/DELG-Software/DELG-Code-IDE-Plugins",
+    "commit": "266c6a46075a0952b4b64b80e9753e9495417522"
+  }
+}

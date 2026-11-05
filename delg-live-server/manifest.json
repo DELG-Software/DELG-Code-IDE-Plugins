@@ -15,8 +15,17 @@
     "media/command-palette.png"
   ],
   "engines": {
-    "delgIde": ">=0.36.0"
+    "delgIde": ">=0.39.0"
   },
+  "activationEvents": [
+    "onCommand:delg.live-server.start",
+    "onCommand:delg.live-server.stop",
+    "onCommand:delg.live-server.restart",
+    "onCommand:delg.live-server.open",
+    "onCommand:delg.live-server.openPage",
+    "onCommand:delg.live-server.showUrl",
+    "onCommand:delg.live-server.menu"
+  ],
   "capabilities": [
     "commands",
     "workspace-read",

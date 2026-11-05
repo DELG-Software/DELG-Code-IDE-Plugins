@@ -81,7 +81,17 @@ export function languageServerUi(delg, { prefix, name, spec, help, extraActions 
   // One registration at a time, so a settings change during start-up cannot
   // leave two handles for the same server.
   let queue = Promise.resolve()
-  const restart = () => (queue = queue.then(register))
+  const reportUnexpectedFailure = (error) => {
+    quiet(delg.ui.updateStatusBarItem(statusId, labels.error))
+    quiet(delg.ui.setStatus(name + ': ' + String((error && error.message) || error).slice(0, 200)))
+    if (!warned) {
+      warned = true
+      quiet(delg.ui.showWarningMessage(help))
+    }
+  }
+  // Recover the serialized queue after an unexpected lifecycle failure so a
+  // later manual restart or settings change can try again.
+  const restart = () => (queue = queue.catch(() => undefined).then(register).catch(reportUnexpectedFailure))
 
   const showHelp = () => quiet(delg.ui.showInformationMessage(help))
   delg.registerCommand(prefix + '.restart', name + ': Restart Language Server', () => restart())

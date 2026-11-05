@@ -103,6 +103,49 @@ test('open a page lists HTML files in the served folder and opens the chosen one
   assert.deepEqual(ide.opened, ['http://127.0.0.1:53123/docs/guide.htm'])
 })
 
+test('overlapping starts stop stale servers and stop cancels startup', async () => {
+  const ide = fakeIde()
+  const pending = []
+  const stopped = []
+  let call = 0
+  ide.delg.servers.startStatic = () => new Promise((resolve) => {
+    const port = 53124 + call++
+    pending.push(() => resolve({
+      url: `http://127.0.0.1:${port}/`,
+      urlFor: async (path) => `http://127.0.0.1:${port}${path}`,
+      stop: async () => { stopped.push(port) },
+      onDidChangeStatus: () => () => {}
+    }))
+  })
+  activate(ide.delg)
+  await ide.commands.get('delg.live-server.stop')()
+
+  const startFirst = ide.commands.get('delg.live-server.restart')()
+  const startSecond = ide.commands.get('delg.live-server.restart')()
+  assert.equal(pending.length, 2)
+  pending[1]()
+  await startSecond
+  assert.equal(ide.bar.text, 'Live Server: 127.0.0.1:53125')
+
+  pending[0]()
+  await startFirst
+  assert.deepEqual(stopped, [53124])
+  await ide.commands.get('delg.live-server.showUrl')()
+  assert.deepEqual(ide.infos, ['Live Server is serving at http://127.0.0.1:53125/'])
+
+  const startThird = ide.commands.get('delg.live-server.restart')()
+  await new Promise((resolve) => setImmediate(resolve))
+  assert.equal(pending.length, 3)
+  await ide.commands.get('delg.live-server.stop')()
+  assert.equal(ide.bar.text, 'Live Server: stopped')
+  pending[2]()
+  await startThird
+  assert.deepEqual(stopped, [53124, 53125, 53126])
+  assert.equal(ide.bar.text, 'Live Server: stopped')
+  await ide.commands.get('delg.live-server.showUrl')()
+  assert.equal(ide.infos.at(-1), 'Live Server is not running.')
+})
+
 test('paths and addresses', () => {
   assert.equal(hostOf('http://127.0.0.1:5500/'), '127.0.0.1:5500')
   assert.equal(hostOf('not a url'), '')

@@ -15,8 +15,11 @@
     "media/overview.png"
   ],
   "engines": {
-    "delgIde": ">=0.17.2"
+    "delgIde": ">=0.39.0"
   },
+  "activationEvents": [
+    "onStartup"
+  ],
   "capabilities": [
     "commands",
     "explorer-icons",

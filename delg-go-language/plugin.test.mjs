@@ -100,3 +100,29 @@ test('a server the IDE refuses shows the setup help', async () => {
   await ide.commands.get('delg.go-language.restart')()
   assert.equal(ide.warnings.length, 1)
 })
+
+test('a failed lifecycle operation does not block later restarts', async () => {
+  const ide = fakeIde()
+  activate(ide.delg)
+  await settle()
+
+  const server = ide.servers.at(-1)
+  const dispose = server.dispose
+  let failOnce = true
+  server.dispose = () => {
+    if (failOnce) {
+      failOnce = false
+      throw new Error('temporary dispose failure')
+    }
+    return dispose()
+  }
+
+  await ide.commands.get('delg.go-language.restart')()
+  assert.equal(ide.registered.length, 1)
+  assert.equal(ide.statusBar.get('delg.go-language.status').text, 'Go: not running')
+  assert.equal(ide.warnings.length, 1)
+
+  await ide.commands.get('delg.go-language.restart')()
+  assert.equal(ide.registered.length, 2)
+  assert.equal(ide.disposed, 1)
+})

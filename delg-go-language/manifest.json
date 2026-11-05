@@ -11,8 +11,13 @@
   "version": "0.2.0",
   "entry": "plugin.js",
   "engines": {
-    "delgIde": ">=0.36.0"
+    "delgIde": ">=0.39.0"
   },
+  "activationEvents": [
+    "onLanguage:go",
+    "workspaceContains:go.mod",
+    "workspaceContains:go.work"
+  ],
   "capabilities": [
     "commands",
     "language-servers",

@@ -11,8 +11,20 @@
   "version": "0.2.0",
   "entry": "plugin.js",
   "engines": {
-    "delgIde": ">=0.36.0"
+    "delgIde": ">=0.39.0"
   },
+  "activationEvents": [
+    "onLanguage:vue",
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascriptreact",
+    "workspaceContains:package.json",
+    "workspaceContains:tsconfig.json",
+    "workspaceContains:jsconfig.json",
+    "workspaceContains:vite.config.ts",
+    "workspaceContains:vue.config.js"
+  ],
   "capabilities": [
     "commands",
     "language-servers",
