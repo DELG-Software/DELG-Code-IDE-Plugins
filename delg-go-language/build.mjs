@@ -8,6 +8,11 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 const manifest = JSON.parse(await readFile(join(root, 'manifest.json'), 'utf8'))
 const metadata = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
 if (manifest.version !== metadata.version) throw new Error('manifest and package versions must match')
+const sourceCommit = process.env.DELG_SOURCE_COMMIT?.trim()
+if (sourceCommit) {
+  if (!/^[a-f0-9]{40}$/i.test(sourceCommit)) throw new Error('DELG_SOURCE_COMMIT must be a 40-character Git commit')
+  manifest.source = { ...manifest.source, commit: sourceCommit.toLowerCase() }
+}
 
 // Keep the artifact self-contained without requiring a global zip utility.
 // Release builds can add the pinned runtime dependency directories to the
@@ -47,9 +52,16 @@ async function collect(directory, output = []) {
   }
   return output
 }
-const paths = await collect(root)
+const archivePath = path => relative(root, path).replaceAll('\\', '/')
+const comparePaths = (left, right) => archivePath(left) < archivePath(right) ? -1 : archivePath(left) > archivePath(right) ? 1 : 0
+const textFile = /\.(?:cjs|css|html|js|json|md|mjs|ts|txt|xml|yaml|yml)$/i
+const paths = (await collect(root)).sort(comparePaths)
 const files = [['manifest.json', Buffer.from(JSON.stringify(manifest, null, 2) + '\n')]]
-for (const path of paths) files.push([relative(root, path).replaceAll('\\', '/'), await readFile(path)])
+for (const path of paths) {
+  let bytes = await readFile(path)
+  if (textFile.test(path)) bytes = Buffer.from(bytes.toString('utf8').replace(/\r\n?/g, '\n'))
+  files.push([archivePath(path), bytes])
+}
 const bytes = zip(files)
 const output = join(root, `${manifest.id.replaceAll('.', '-')}-${manifest.version}.delg-plugin`)
 for (const name of await readdir(root)) if (name.endsWith('.delg-plugin')) await rm(join(root, name), { force: true })
