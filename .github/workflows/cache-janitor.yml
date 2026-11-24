@@ -1,0 +1,15 @@
+name: Cache janitor
+
+# Sweeps stale Actions caches via the shared janitor in DELG-Platform; the
+# called job runs with this repository's own GITHUB_TOKEN.
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  purge:
+    name: Delete stale caches
+    permissions:
+      actions: write
+    uses: DELG-Software/DELG-Platform/.github/workflows/cache-janitor.yml@main
